@@ -1,5 +1,5 @@
 {
-  "generated_at": "26-06-2026 16:19",
+  "generated_at": "27-06-2026 15:55",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -679,18 +679,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "CAD::GDP::m/m",
-      "cur": "CAD",
-      "event": "GDP (MoM)  (May)",
-      "period": "may",
-      "date": "2026-06-30",
-      "time": "20:30",
-      "previous_raw": "",
-      "prior_actual": "0.4%",
-      "previous_effective": "0.4%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "INR::FX Reserves, USD::none",
       "cur": "INR",
       "event": "FX Reserves, USD",
@@ -730,8 +718,8 @@
       "date": "2026-07-03",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "433",
-      "previous_effective": "433"
+      "prior_actual": "440",
+      "previous_effective": "440"
     },
     {
       "issue": "previous_missing_filled",
@@ -742,8 +730,8 @@
       "date": "2026-07-03",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "563",
-      "previous_effective": "563"
+      "prior_actual": "573",
+      "previous_effective": "573"
     },
     {
       "issue": "previous_missing_filled",
@@ -756,6 +744,18 @@
       "previous_raw": "",
       "prior_actual": "0.00",
       "previous_effective": "0.00"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-07-07",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "2.5%",
+      "previous_effective": "2.5%"
     }
   ]
 }

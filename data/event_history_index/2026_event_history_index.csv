@@ -11305,9 +11305,9 @@ INR::Deposit Growth::none,2026-06-26,19:30,,12.0%,,12.2%
 "INR::FX Reserves, USD::none",2026-06-26,19:30,,672.59B,,671.63B
 CAD::Wholesale Sales::m/m,2026-06-26,20:30,may,-0.7%,,0.6%
 USD::Wholesale Inventories::m/m,2026-06-26,20:30,may,0.3%,0.3%,0.7%
-USD::U.S. Baker Hughes Oil Rig Count::none,2026-06-27,01:00,,,,433
-USD::U.S. Baker Hughes Total Rig Count::none,2026-06-27,01:00,,,,563
-CNY::Chinese Industrial profit YTD::none,2026-06-27,09:30,may,,,18.2%
+USD::U.S. Baker Hughes Oil Rig Count::none,2026-06-27,01:00,,440,,433
+USD::U.S. Baker Hughes Total Rig Count::none,2026-06-27,01:00,,573,,563
+CNY::Chinese Industrial profit YTD::none,2026-06-27,09:30,may,18.8%,,18.2%
 ILS::Industrial Output::m/m,2026-06-28,18:00,apr,,,-18.1%
 INR::Industrial Production::y/y,2026-06-28,18:30,may,,,4.9%
 INR::Manufacturing Output::m/m,2026-06-28,18:30,may,,,6.2%
@@ -11421,7 +11421,7 @@ EUR::Portuguese Business Confidence::none,2026-06-29,16:30,jun,,,2.7
 EUR::Portuguese Consumer Confidence::none,2026-06-29,16:30,jun,,,-27.10
 EUR::Business Climate::none,2026-06-29,17:00,jun,,,-0.26
 EUR::Business and Consumer Survey::none,2026-06-29,17:00,jun,,,93.5
-EUR::Consumer Confidence::none,2026-06-29,17:00,jun,,-17.7,-19.0
+EUR::Consumer Confidence::none,2026-06-29,17:00,jun,,-17.7,-17.7
 EUR::Consumer Inflation Expectation::none,2026-06-29,17:00,jun,,,40.5
 EUR::Industrial Sentiment::none,2026-06-29,17:00,jun,,,-8.0
 EUR::Selling Price Expectations::none,2026-06-29,17:00,jun,,,27.4
@@ -11465,21 +11465,21 @@ CNY::Manufacturing PMI::none,2026-06-30,09:30,jun,,,50.0
 CNY::Non-Manufacturing PMI::none,2026-06-30,09:30,jun,,,50.1
 NZD::M3 Money Supply::none,2026-06-30,11:00,may,,,"454,442.0B"
 THB::Industrial Production::y/y,2026-06-30,12:00,may,,,-0.36%
-EUR::Finnish GDP::y/y,2026-06-30,13:00,may,,,1.1%
+EUR::Finnish GDP::y/y,2026-06-30,13:00,may,,,0.9%
 DKK::Unemployment Rate::none,2026-06-30,14:00,may,,,2.7%
 EUR::German Import Price Index::m/m,2026-06-30,14:00,may,,,1.2%
 EUR::German Import Price Index::y/y,2026-06-30,14:00,may,,,5.3%
 EUR::German Retail Sales::m/m,2026-06-30,14:00,may,,,-0.3%
 EUR::German Retail Sales::y/y,2026-06-30,14:00,may,,,-0.3%
-EUR::M3 Money Supply::none,2026-06-30,14:00,may,,,30.7B
+EUR::M3 Money Supply::none,2026-06-30,14:00,may,,,"30,666.0B"
 SEK::Retail Sales::m/m,2026-06-30,14:00,may,,,0.0%
 SEK::Retail Sales::y/y,2026-06-30,14:00,may,,,4.7%
 ZAR::M3 Money Supply::y/y,2026-06-30,14:00,may,,,9.82%
 ZAR::Private Sector Credit::none,2026-06-30,14:00,may,,,9.20%
-DKK::GDP::q/q,2026-06-30,14:00,q1,,1.9%,0.2%
-DKK::GDP::y/y,2026-06-30,14:00,q1,,5.90%,3.10%
+DKK::GDP::q/q,2026-06-30,14:00,q1,,1.9%,1.9%
+DKK::GDP::y/y,2026-06-30,14:00,q1,,5.90%,5.90%
 GBP::Business Investment::q/q,2026-06-30,14:00,q1,,0.7%,0.7%
-GBP::Business Investment::y/y,2026-06-30,14:00,q1,,-1.8%,2.0%
+GBP::Business Investment::y/y,2026-06-30,14:00,q1,,-1.8%,-1.8%
 GBP::Current Account::none,2026-06-30,14:00,q1,,,-18.4B
 GBP::GDP::q/q,2026-06-30,14:00,q1,,0.6%,0.6%
 GBP::GDP::y/y,2026-06-30,14:00,q1,,1.1%,1.1%
@@ -11503,8 +11503,8 @@ THB::Trade account::none,2026-06-30,15:00,may,,,-6.80B
 TRY::Trade Balance::none,2026-06-30,15:00,may,,-5.60B,-8.50B
 TRY::Unemployment Rate::m/m,2026-06-30,15:00,may,,,8.2%
 CHF::KOF Leading Indicators::none,2026-06-30,15:00,jun,,,98.0
-CZK::GDP::q/q,2026-06-30,15:00,q1,,0.2%,0.7%
-CZK::GDP::y/y,2026-06-30,15:00,q1,,2.2%,2.7%
+CZK::GDP::q/q,2026-06-30,15:00,q1,,0.2%,0.2%
+CZK::GDP::y/y,2026-06-30,15:00,q1,,2.2%,2.2%
 PLN::CPI::m/m,2026-06-30,15:30,jun,,,-0.3%
 PLN::CPI::y/y,2026-06-30,15:30,jun,,,3.1%
 EUR::German Unemployment Change::none,2026-06-30,15:55,jun,,,-12K
@@ -11535,7 +11535,6 @@ BRL::Gross Debt-to-GDP ratio::m/m,2026-06-30,19:30,may,,,80.4%
 BRL::Net Debt-to-GDP ratio::none,2026-06-30,19:30,may,,,67.4%
 INR::Trade Balance (USD)::none,2026-06-30,19:30,q3,,,-87.400B
 BRL::Brazilian PPI::m/m,2026-06-30,20:00,may,,,2.63%
-ZAR::Budget Balance::m/m,2026-06-30,20:00,may,,,-63.57B
 ZAR::Trade Balance::none,2026-06-30,20:00,may,,,15.16B
 EUR::German CPI::m/m,2026-06-30,20:00,jun,,,-0.2%
 EUR::German CPI::y/y,2026-06-30,20:00,jun,,,2.6%
@@ -11564,7 +11563,6 @@ CAD::Budget Balance::none,2026-06-30,23:00,apr,,,-29.73B
 CAD::Budget Balance::y/y,2026-06-30,23:00,apr,,,-55.28B
 COP::Unemployment Rate::none,2026-06-30,23:00,may,,,8.8%
 COP::Urban Unemployment Rate::none,2026-06-30,23:00,may,,,8.8%
-UAH::Current Account (USD)::none,2026-07-01,00:00,may,,,-14.400B
 NA::Canada - Canada Day::none,2026-07-01,All Day,,,,
 NA::Hong Kong - Hong Kong Special Administrative Region Establishment Day::none,2026-07-01,All Day,,,,
 NA::Rwanda - Independence Day::none,2026-07-01,All Day,,,,
@@ -11573,7 +11571,7 @@ COP::Interest Rate Decision::none,2026-07-01,02:00,jun,,,11.25%
 MXN::Fiscal Balance::none,2026-07-01,03:00,may,,,-37.15B
 AUD::AIG Construction Index::none,2026-07-01,07:00,jun,,,-9.9
 AUD::AIG Manufacturing Index::none,2026-07-01,07:00,jun,,,-22.4
-AUD::S&P Global Manufacturing PMI::none,2026-07-01,07:00,jun,,51.2,50.7
+AUD::S&P Global Manufacturing PMI::none,2026-07-01,07:00,jun,,51.2,51.2
 JPY::Tankan All Big Industry CAPEX::none,2026-07-01,07:50,q2,,,3.3%
 JPY::Tankan All Small Industry CAPEX::none,2026-07-01,07:50,q2,,,-8.1%
 JPY::Tankan Big Manufacturing Outlook Index::none,2026-07-01,07:50,q2,,13,14
@@ -11597,7 +11595,7 @@ THB::Manufacturing PMI::none,2026-07-01,08:30,jun,,,52.60
 TWD::S&P Global Manufacturing PMI::none,2026-07-01,08:30,jun,,,56.10
 VND::S&P Global Manufacturing PMI::none,2026-07-01,08:30,jun,,,52.8
 AUD::Building Approvals::m/m,2026-07-01,09:30,may,,,-3.4%
-AUD::Building Approvals::y/y,2026-07-01,09:30,may,,,10.20%
+AUD::Building Approvals::y/y,2026-07-01,09:30,may,,,23.10%
 AUD::Private House Approvals::none,2026-07-01,09:30,may,,,-1.0%
 CNY::RatingDog Manufacturing PMI::m/m,2026-07-01,09:45,jun,,,51.8
 IDR::Export Growth::y/y,2026-07-01,12:00,may,,,21.98%
@@ -11620,13 +11618,13 @@ CHF::procure.ch Manufacturing PMI::none,2026-07-01,15:30,jun,,,57.3
 CZK::S&P Global Czech Republic Manufacturing PMI::none,2026-07-01,15:30,jun,,,52.2
 EUR::HCOB Italy Manufacturing PMI::none,2026-07-01,15:45,jun,,,52.9
 EUR::HCOB France Manufacturing PMI::none,2026-07-01,15:50,jun,,50.7,50.7
-EUR::HCOB Germany Manufacturing PMI::none,2026-07-01,15:55,jun,,50.0,50.1
+EUR::HCOB Germany Manufacturing PMI::none,2026-07-01,15:55,jun,,50.0,50.0
 EUR::Austrian Unemployment Change::none,2026-07-01,16:00,jun,,,301.7K
 EUR::Austrian Unemployment Rate::none,2026-07-01,16:00,jun,,,7.1%
 EUR::HCOB Eurozone Manufacturing PMI::none,2026-07-01,16:00,jun,,51.3,51.3
 EUR::S&P Global Greece Manufacturing PMI::none,2026-07-01,16:00,jun,,,53.3
 EUR::Italian Public Deficit::none,2026-07-01,16:00,q1,,,-1.4%
-GBP::S&P Global Manufacturing PMI::none,2026-07-01,16:30,jun,,53.1,53.9
+GBP::S&P Global Manufacturing PMI::none,2026-07-01,16:30,jun,,53.1,53.1
 EUR::Greek Unemployment Rate::none,2026-07-01,17:00,may,,,9.5%
 "EUR::CPI, n.s.a::none",2026-07-01,17:00,jun,,,103.13
 EUR::CPI::y/y,2026-07-01,17:00,jun,,,3.2%
@@ -11664,26 +11662,26 @@ USD::Fed's Balance Sheet::none,2026-06-26,04:30,,"6,736B",,"6,736B"
 USD::Reserve Balances with Federal Reserve Banks::none,2026-06-26,04:30,,2.954T,,2.936T
 THB::Currency Swaps (USD)::none,2026-06-26,15:30,,22.8B,,22.4B
 THB::Foreign Reserves (USD)::none,2026-06-26,15:30,,282.6B,,283.9B
-AUD::CFTC AUD speculative net positions::none,2026-06-27,03:30,,,,-4.1K
-BRL::CFTC BRL speculative net positions::none,2026-06-27,03:30,,,,41.0K
-CAD::CFTC CAD speculative net positions::none,2026-06-27,03:30,,,,-132.9K
-CHF::CFTC CHF speculative net positions::none,2026-06-27,03:30,,,,-40.1K
-EUR::CFTC EUR speculative net positions::none,2026-06-27,03:30,,,,34.4K
-GBP::CFTC GBP speculative net positions::none,2026-06-27,03:30,,,,-71.6K
-JPY::CFTC JPY speculative net positions::none,2026-06-27,03:30,,,,-150.1K
-MXN::CFTC MXN speculative net positions::none,2026-06-27,03:30,,,,71.8K
-NZD::CFTC NZD speculative net positions::none,2026-06-27,03:30,,,,-45.2K
-USD::CFTC Aluminium speculative net positions::none,2026-06-27,03:30,,,,0.1K
-USD::CFTC Copper speculative net positions::none,2026-06-27,03:30,,,,75.3K
-USD::CFTC Corn speculative net positions::none,2026-06-27,03:30,,,,77.8K
-USD::CFTC Crude Oil speculative net positions::none,2026-06-27,03:30,,,,124.5K
-USD::CFTC Gold speculative net positions::none,2026-06-27,03:30,,,,180.2K
-USD::CFTC Nasdaq 100 speculative net positions::none,2026-06-27,03:30,,,,-8.9K
-USD::CFTC Natural Gas speculative net positions::none,2026-06-27,03:30,,,,-173.5K
-USD::CFTC S&P 500 speculative net positions::none,2026-06-27,03:30,,,,-194.0K
-USD::CFTC Silver speculative net positions::none,2026-06-27,03:30,,,,24.5K
-USD::CFTC Soybeans speculative net positions::none,2026-06-27,03:30,,,,117.6K
-USD::CFTC Wheat speculative net positions::none,2026-06-27,03:30,,,,-50.8K
+AUD::CFTC AUD speculative net positions::none,2026-06-27,03:30,,-13.0K,,-4.1K
+BRL::CFTC BRL speculative net positions::none,2026-06-27,03:30,,43.7K,,41.0K
+CAD::CFTC CAD speculative net positions::none,2026-06-27,03:30,,-146.8K,,-132.9K
+CHF::CFTC CHF speculative net positions::none,2026-06-27,03:30,,-41.1K,,-40.1K
+EUR::CFTC EUR speculative net positions::none,2026-06-27,03:30,,30.2K,,34.4K
+GBP::CFTC GBP speculative net positions::none,2026-06-27,03:30,,-105.7K,,-71.6K
+JPY::CFTC JPY speculative net positions::none,2026-06-27,03:30,,-146.1K,,-150.1K
+MXN::CFTC MXN speculative net positions::none,2026-06-27,03:30,,74.2K,,71.8K
+NZD::CFTC NZD speculative net positions::none,2026-06-27,03:30,,-54.8K,,-45.2K
+USD::CFTC Aluminium speculative net positions::none,2026-06-27,03:30,,0.8K,,0.1K
+USD::CFTC Copper speculative net positions::none,2026-06-27,03:30,,71.6K,,75.3K
+USD::CFTC Corn speculative net positions::none,2026-06-27,03:30,,58.3K,,77.8K
+USD::CFTC Crude Oil speculative net positions::none,2026-06-27,03:30,,114.6K,,124.5K
+USD::CFTC Gold speculative net positions::none,2026-06-27,03:30,,181.3K,,180.2K
+USD::CFTC Nasdaq 100 speculative net positions::none,2026-06-27,03:30,,-9.1K,,-8.9K
+USD::CFTC Natural Gas speculative net positions::none,2026-06-27,03:30,,-176.7K,,-173.5K
+USD::CFTC S&P 500 speculative net positions::none,2026-06-27,03:30,,-35.4K,,-194.0K
+USD::CFTC Silver speculative net positions::none,2026-06-27,03:30,,23.8K,,24.5K
+USD::CFTC Soybeans speculative net positions::none,2026-06-27,03:30,,100.8K,,117.6K
+USD::CFTC Wheat speculative net positions::none,2026-06-27,03:30,,-48.4K,,-50.8K
 BRL::BCB Focus Market Readout::none,2026-06-29,19:25,,,,
 PHP::Exports::y/y,2026-06-30,09:00,may,,,6.3%
 PHP::Imports::y/y,2026-06-30,09:00,may,,,22.4%
@@ -11697,7 +11695,6 @@ EUR::German 30-Year Bund Auction::none,2026-06-24,17:40,,2.960%,,3.490%
 USD::Fed Governor Cook Speaks::none,2026-06-25,02:00,,,,
 USD::U.S. President Trump Speaks::none,2026-06-25,08:30,,,,
 USD::FOMC Member Bowman Speaks::none,2026-06-25,20:45,,,,
-JPY::Construction Orders::y/y,2026-06-29,13:00,may,,,-32.3%
 EUR::Lithuania Retail Sales::m/m,2026-06-29,14:00,may,,,4.5%
 EUR::Lithuania Retail Sales::y/y,2026-06-29,14:00,may,,,8.9%
 EUR::Core CPI::y/y,2026-06-29,15:00,jun,,,3.0%
@@ -11714,7 +11711,6 @@ JPY::2-Year JGB Auction::none,2026-06-30,11:35,,,,1.369%
 EUR::Dutch Business Confidence::none,2026-06-30,12:30,jun,,,-2.0
 EUR::Estonian Retail Sales::m/m,2026-06-30,13:00,may,,,-3.50%
 EUR::Estonian Retail Sales::y/y,2026-06-30,13:00,may,,,1.60%
-GBP::Nationwide HPI::m/m,2026-06-30,14:00,jun,,,-0.6%
 EUR::French HICP::m/m,2026-06-30,14:45,jun,,,0.1%
 EUR::French HICP::y/y,2026-06-30,14:45,jun,,,2.8%
 TRY::Exports::none,2026-06-30,15:00,may,,22.50B,25.40B
@@ -11726,7 +11722,6 @@ EUR::North Rhine Westphalia CPI::m/m,2026-06-30,16:00,jun,,,-0.2%
 EUR::Saxony CPI::m/m,2026-06-30,16:00,jun,,,-0.1%
 EUR::Saxony CPI::y/y,2026-06-30,16:00,jun,,,2.8%
 UGX::CPI::y/y,2026-06-30,16:30,jun,,,3.2%
-EUR::Greek Retail Sales::y/y,2026-06-30,18:00,apr,,,3.0%
 EUR::Irish Retail Sales::m/m,2026-06-30,18:00,may,,,-0.2%
 EUR::Irish Retail Sales::y/y,2026-06-30,18:00,may,,,-0.5%
 EUR::Latvian Retail Sales::m/m,2026-06-30,18:00,may,,,-0.40%
@@ -11736,7 +11731,6 @@ EUR::Irish HICP::y/y,2026-06-30,18:00,jun,,,3.5%
 MUR::GDP Annual::none,2026-06-30,19:00,q1,,,3.20%
 EUR::ECB's Lane Speaks::none,2026-06-30,19:30,,,,
 INR::Foreign Debt (USD)::none,2026-06-30,20:00,q1,,,765.5B
-CAD::GDP::m/m,2026-06-30,20:30,may,,,0.4%
 USD::Redbook::y/y,2026-06-30,20:55,,,,10.0%
 CLP::Retail Sales::y/y,2026-06-30,21:00,may,,,4.1%
 SAR::M3 Money Supply::y/y,2026-06-30,22:00,may,,,10.00%
@@ -11790,8 +11784,6 @@ EUR::Unemployment Rate::none,2026-07-02,17:00,may,,,6.3%
 BRL::IPC-Fipe Inflation Index::m/m,2026-07-02,17:00,jun,,,0.45%
 GHS::CPI::y/y,2026-07-02,18:00,jun,,,3.70%
 TRY::Gross FX Reserves::none,2026-07-02,19:30,,,,59.51B
-BRL::Industrial Production::m/m,2026-07-02,20:00,may,,,0.7%
-BRL::Industrial Production::y/y,2026-07-02,20:00,may,,,2.7%
 USD::Average Hourly Earnings::m/m,2026-07-02,20:30,jun,,,0.3%
 USD::Average Hourly Earnings::y/y,2026-07-02,20:30,jun,,,3.4%
 USD::Average Weekly Hours::none,2026-07-02,20:30,jun,,,34.3
@@ -11820,11 +11812,11 @@ EUR::French Car Registration::y/y,2026-07-03,00:00,jun,,,3.7%
 NA::United States - Independence Day::none,2026-07-03,All Day,,,,
 EUR::Car Registration::y/y,2026-07-03,01:00,jun,,,-2.10%
 USD::Total Vehicle Sales::none,2026-07-03,02:00,jun,,,16.10M
-AUD::S&P Global Manufacturing & Services PMI::none,2026-07-03,07:00,jun,,49.80,48.70
-AUD::S&P Global Services PMI::none,2026-07-03,07:00,jun,,49.9,48.7
+AUD::S&P Global Manufacturing & Services PMI::none,2026-07-03,07:00,jun,,49.80,49.80
+AUD::S&P Global Services PMI::none,2026-07-03,07:00,jun,,49.9,49.9
 EUR::AIB Ireland Services PMI::none,2026-07-03,08:00,jun,,,50.8
 JPY::Manufacturing & Services PMI::none,2026-07-03,08:30,jun,,52.50,52.50
-JPY::S&P Global Services PMI::none,2026-07-03,08:30,jun,,51.8,50.0
+JPY::S&P Global Services PMI::none,2026-07-03,08:30,jun,,51.8,51.8
 CNY::RatingDog Services PMI::none,2026-07-03,09:45,jun,,,54.4
 VND::Trade Balance::none,2026-07-03,10:00,jun,,,"-5,210M"
 VND::Vietnamese CPI::m/m,2026-07-03,10:00,jun,,,0.29%
@@ -11851,17 +11843,17 @@ EUR::HCOB Spain Services PMI::none,2026-07-03,15:15,jun,,,50.1
 ZAR::S&P Global Manufacturing PMI::none,2026-07-03,15:15,jun,,,49.6
 EUR::HCOB Italy Composite PMI::none,2026-07-03,15:45,jun,,,50.4
 EUR::HCOB Italy Services PMI::none,2026-07-03,15:45,jun,,,49.4
-EUR::HCOB France Composite PMI::none,2026-07-03,15:50,jun,,47.6,44.9
+EUR::HCOB France Composite PMI::none,2026-07-03,15:50,jun,,47.6,47.6
 EUR::HCOB France Services PMI::none,2026-07-03,15:50,jun,,47.4,47.4
-EUR::HCOB Germany Composite PMI::none,2026-07-03,15:55,jun,,48.0,48.8
-EUR::HCOB Germany Services PMI::none,2026-07-03,15:55,jun,,46.8,48.1
+EUR::HCOB Germany Composite PMI::none,2026-07-03,15:55,jun,,48.0,48.0
+EUR::HCOB Germany Services PMI::none,2026-07-03,15:55,jun,,46.8,46.8
 EUR::Italian Retail Sales::m/m,2026-07-03,16:00,may,,,0.0%
 EUR::Italian Retail Sales::y/y,2026-07-03,16:00,may,,,1.6%
 EUR::HCOB Eurozone Composite PMI::none,2026-07-03,16:00,jun,,49.5,49.5
 EUR::HCOB Eurozone Services PMI::none,2026-07-03,16:00,jun,,48.9,48.9
 KES::GDP::q/q,2026-07-03,16:00,q1,,,4.00%
 GBP::S&P Global Composite PMI::none,2026-07-03,16:30,jun,,49.4,49.4
-GBP::S&P Global Services PMI::none,2026-07-03,16:30,jun,,48.7,49.3
+GBP::S&P Global Services PMI::none,2026-07-03,16:30,jun,,48.7,48.7
 NOK::House Price Index::y/y,2026-07-03,17:00,jun,,,3.80%
 RUB::Russian Forex Intervention::none,2026-07-03,17:00,jul,,,208.2B
 EUR::Spanish Consumer Confidence::none,2026-07-03,18:00,may,,,77.7
@@ -11897,8 +11889,8 @@ USD::Heating Oil Stockpiles::none,2026-07-01,22:30,,,,0.722M
 JPY::Foreign Bonds Buying::none,2026-07-02,07:50,,,,199.7B
 JPY::Foreign Investments in Japanese Stocks::none,2026-07-02,07:50,,,,479.4B
 GBP::BOE Credit Conditions Survey::none,2026-07-02,16:30,,,,
-USD::U.S. Baker Hughes Oil Rig Count::none,2026-07-03,01:00,,,,433
-USD::U.S. Baker Hughes Total Rig Count::none,2026-07-03,01:00,,,,563
+USD::U.S. Baker Hughes Oil Rig Count::none,2026-07-03,01:00,,,,440
+USD::U.S. Baker Hughes Total Rig Count::none,2026-07-03,01:00,,,,573
 GBP::BoE Gov Bailey Speaks::none,2026-07-03,23:00,,,,
 EUR::ECB President Lagarde Speaks::none,2026-06-30,01:30,,,,
 GBP::BRC Shop Price Index::y/y,2026-06-30,07:00,,,,1.2%
@@ -11977,3 +11969,96 @@ USD::ISM Non-Manufacturing Employment::none,2026-07-06,22:00,jun,,,47.9
 USD::ISM Non-Manufacturing New Orders::none,2026-07-06,22:00,jun,,,57.3
 USD::ISM Non-Manufacturing PMI::none,2026-07-06,22:00,jun,,,54.5
 USD::ISM Non-Manufacturing Prices::none,2026-07-06,22:00,jun,,,71.3
+USD::U.S. President Trump Speaks::none,2026-06-27,01:30,,,,
+EUR::Latvian Retail Sales::m/m,2026-06-29,18:00,may,,,-0.40%
+EUR::Latvian Retail Sales::y/y,2026-06-29,18:00,may,,,2.60%
+JPY::Construction Orders::y/y,2026-06-30,13:00,may,,,-32.3%
+EUR::Greek Retail Sales::y/y,2026-06-30,17:00,apr,,,3.0%
+RUB::GDP Monthly::y/y,2026-06-30,21:15,may,,,1.3%
+UAH::Current Account (USD)::none,2026-06-30,21:15,may,,,-14.400B
+ZAR::Budget Balance::m/m,2026-06-30,21:15,may,,,-63.57B
+GBP::Nationwide HPI::m/m,2026-07-01,14:00,jun,,,-0.6%
+BRL::Industrial Production::m/m,2026-07-03,20:00,may,,,0.7%
+BRL::Industrial Production::y/y,2026-07-03,20:00,may,,,2.7%
+BRL::Trade Balance::none,2026-07-04,02:00,jun,,,7.82B
+AUD::CFTC AUD speculative net positions::none,2026-07-04,03:30,,,,-13.0K
+BRL::CFTC BRL speculative net positions::none,2026-07-04,03:30,,,,43.7K
+CAD::CFTC CAD speculative net positions::none,2026-07-04,03:30,,,,-146.8K
+CHF::CFTC CHF speculative net positions::none,2026-07-04,03:30,,,,-41.1K
+EUR::CFTC EUR speculative net positions::none,2026-07-04,03:30,,,,30.2K
+GBP::CFTC GBP speculative net positions::none,2026-07-04,03:30,,,,-105.7K
+JPY::CFTC JPY speculative net positions::none,2026-07-04,03:30,,,,-146.1K
+MXN::CFTC MXN speculative net positions::none,2026-07-04,03:30,,,,74.2K
+NZD::CFTC NZD speculative net positions::none,2026-07-04,03:30,,,,-54.8K
+USD::CFTC Aluminium speculative net positions::none,2026-07-04,03:30,,,,0.8K
+USD::CFTC Copper speculative net positions::none,2026-07-04,03:30,,,,71.6K
+USD::CFTC Corn speculative net positions::none,2026-07-04,03:30,,,,58.3K
+USD::CFTC Crude Oil speculative net positions::none,2026-07-04,03:30,,,,114.6K
+USD::CFTC Gold speculative net positions::none,2026-07-04,03:30,,,,181.3K
+USD::CFTC Nasdaq 100 speculative net positions::none,2026-07-04,03:30,,,,-9.1K
+USD::CFTC Natural Gas speculative net positions::none,2026-07-04,03:30,,,,-176.7K
+USD::CFTC S&P 500 speculative net positions::none,2026-07-04,03:30,,,,-35.4K
+USD::CFTC Silver speculative net positions::none,2026-07-04,03:30,,,,23.8K
+USD::CFTC Soybeans speculative net positions::none,2026-07-04,03:30,,,,100.8K
+USD::CFTC Wheat speculative net positions::none,2026-07-04,03:30,,,,-48.4K
+NA::Tanzania - International Trade Fair::none,2026-07-07,All Day,,,,
+BRL::Trade Balance::none,2026-07-07,02:00,jun,,,7.82B
+JPY::Household Spending::m/m,2026-07-07,07:30,may,,,1.6%
+JPY::Household Spending::y/y,2026-07-07,07:30,may,,,-0.5%
+JPY::Overall wage income of employees::none,2026-07-07,07:30,may,,,3.6%
+JPY::Overtime Pay::y/y,2026-07-07,07:30,may,,,4.80%
+PHP::CPI::m/m,2026-07-07,09:00,jun,,,-0.5%
+PHP::CPI::y/y,2026-07-07,09:00,jun,,,6.8%
+PHP::Core CPI::y/y,2026-07-07,09:00,jun,,,4.1%
+IDR::FX Reserves (USD)::none,2026-07-07,11:00,jun,,,144.90B
+EUR::Dutch CPI::m/m,2026-07-07,12:30,jun,,,0.10%
+EUR::Dutch CPI::y/y,2026-07-07,12:30,jun,,,3.5%
+EUR::Finnish Industry Output::y/y,2026-07-07,13:00,may,,,1.9%
+JPY::Coincident Indicator::m/m,2026-07-07,13:00,may,,,1.3%
+JPY::Leading Index::m/m,2026-07-07,13:00,may,,,0.7%
+EUR::Estonian CPI::m/m,2026-07-07,13:00,jun,,,0.40%
+EUR::Estonian CPI::y/y,2026-07-07,13:00,jun,,,3.70%
+DKK::Industrial Production::m/m,2026-07-07,14:00,may,,,-1.1%
+EUR::German Industrial Production::m/m,2026-07-07,14:00,may,,,0.4%
+EUR::German Industrial Production::y/y,2026-07-07,14:00,may,,,-0.54%
+NOK::Manufacturing Production::m/m,2026-07-07,14:00,may,,,-0.9%
+GBP::Halifax House Price Index::m/m,2026-07-07,14:00,jun,,,-0.1%
+GBP::Halifax House Price Index::y/y,2026-07-07,14:00,jun,,,0.5%
+ZAR::Foreign Reserves (USD)::none,2026-07-07,14:00,jun,,,76.58B
+ZAR::Net FX Reserves (USD)::none,2026-07-07,14:00,jun,,,73.467B
+HUF::CPI::m/m,2026-07-07,14:30,jun,,,0.00%
+HUF::CPI::y/y,2026-07-07,14:30,jun,,,1.8%
+HUF::Core CPI::y/y,2026-07-07,14:30,jun,,,2.0%
+EUR::French Exports::none,2026-07-07,14:45,may,,,54.6B
+EUR::French Imports::none,2026-07-07,14:45,may,,,60.2B
+EUR::French Trade Balance::none,2026-07-07,14:45,may,,,-5.6B
+EUR::French Reserve Assets Total::none,2026-07-07,14:45,jun,,,"381,300.0M"
+CZK::Retail Sales::y/y,2026-07-07,15:00,may,,,1.7%
+CZK::Retailles WDA::y/y,2026-07-07,15:00,may,,,1.60%
+CZK::Trade Balance NRA::none,2026-07-07,15:00,may,,,6.8B
+CHF::Foreign Reserves (USD)::none,2026-07-07,15:00,jun,,,"710,818.0B"
+EUR::Austrian Wholesale Prices n.s.a::m/m,2026-07-07,15:00,jun,,,0.1%
+EUR::Austrian Wholesale Prices n.s.a::y/y,2026-07-07,15:00,jun,,,6.9%
+CNY::FX Reserves (USD)::none,2026-07-07,16:00,jun,,,3.442T
+TWD::CPI NSA::m/m,2026-07-07,16:00,jun,,,0.19%
+TWD::CPI::m/m,2026-07-07,16:00,jun,,,0.26%
+TWD::CPI::y/y,2026-07-07,16:00,jun,,,2.20%
+PHP::FX Reserves USD::none,2026-07-07,17:00,jun,,,104.00B
+SGD::Foreign Reserves USD::m/m,2026-07-07,17:00,jun,,,430.1B
+CAD::Leading Index::m/m,2026-07-07,18:00,jun,,,0.11%
+MUR::CPI::y/y,2026-07-07,18:00,jun,,,4.30%
+BRL::IGP-DI Inflation Index::m/m,2026-07-07,19:00,jun,,,0.87%
+ILS::FX Reserve - USD::none,2026-07-07,19:00,jun,,,238.681B
+BRL::Auto Production::m/m,2026-07-07,20:00,jun,,,6.3%
+BRL::Auto Sales::m/m,2026-07-07,20:00,jun,,,10.6%
+CAD::Exports::none,2026-07-07,20:30,may,,,75.16B
+CAD::Imports::none,2026-07-07,20:30,may,,,72.44B
+CAD::Trade Balance::none,2026-07-07,20:30,may,,,2.72B
+USD::Trade Balance::none,2026-07-07,20:30,may,,,-55.90B
+CLP::Copper Exports (USD)::none,2026-07-07,20:30,jun,,,"5,144M"
+CLP::Trade Balance::none,2026-07-07,20:30,jun,,,2.44B
+UAH::Foreign Reserves (USD)::none,2026-07-07,21:15,jun,,,45.70B
+CAD::Ivey PMI n.s.a::none,2026-07-07,22:00,jun,,,61.3
+CAD::Ivey PMI::none,2026-07-07,22:00,jun,,,58.2
+TRY::Treasury Cash Balance::none,2026-07-07,22:30,jun,,,-252.278B
+USD::Atlanta Fed GDPNow::none,2026-07-07,23:30,q2,,,2.5%
