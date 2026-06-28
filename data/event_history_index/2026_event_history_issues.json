@@ -1,5 +1,5 @@
 {
-  "generated_at": "27-06-2026 15:55",
+  "generated_at": "28-06-2026 15:58",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -752,6 +752,18 @@
       "event": "Atlanta Fed GDPNow  (Q2)",
       "period": "q2",
       "date": "2026-07-07",
+      "time": "23:30",
+      "previous_raw": "",
+      "prior_actual": "2.5%",
+      "previous_effective": "2.5%"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "USD::Atlanta Fed GDPNow::none",
+      "cur": "USD",
+      "event": "Atlanta Fed GDPNow  (Q2)",
+      "period": "q2",
+      "date": "2026-07-08",
       "time": "23:30",
       "previous_raw": "",
       "prior_actual": "2.5%",
