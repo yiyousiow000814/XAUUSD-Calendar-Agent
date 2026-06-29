@@ -7,9 +7,9 @@ previous_missing_filled,JPY::BoJ Monthly Report::none,JPY,BoJ Monthly Report,,20
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-04-16,02:00,,0.00,0.00
 previous_missing_filled,AUD::RBA Bulletin::none,AUD,RBA Bulletin,,2026-05-28,09:30,,0.00,0.00
 previous_missing_filled,USD::Beige Book::none,USD,Beige Book,,2026-06-04,02:00,,0.00,0.00
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-07-03,19:30,,672.59B,672.59B
 previous_missing_filled,USD::U.S. Baker Hughes Oil Rig Count::none,USD,U.S. Baker Hughes Oil Rig Count,,2026-07-03,01:00,,440,440
 previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Baker Hughes Total Rig Count,,2026-07-03,01:00,,573,573
 previous_missing_filled,USD::Fed Governor Warsh Speaks::none,USD,Fed Governor Warsh Speaks,,2026-07-01,21:00,,0.00,0.00
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-07-07,23:30,,2.5%,2.5%
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-07-08,23:30,,2.5%,2.5%
+previous_missing_filled,CAD::GDP::m/m,CAD,GDP (MoM)  (May),may,2026-06-30,20:30,,0.4%,0.4%
