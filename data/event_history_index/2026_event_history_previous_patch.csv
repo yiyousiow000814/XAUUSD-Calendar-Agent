@@ -12,4 +12,12 @@ previous_missing_filled,USD::U.S. Baker Hughes Total Rig Count::none,USD,U.S. Ba
 previous_missing_filled,USD::Fed Governor Warsh Speaks::none,USD,Fed Governor Warsh Speaks,,2026-07-01,21:00,,0.00,0.00
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-07-07,23:30,,2.5%,2.5%
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-07-08,23:30,,2.5%,2.5%
-previous_missing_filled,CAD::GDP::m/m,CAD,GDP (MoM)  (May),may,2026-06-30,20:30,,0.4%,0.4%
+previous_missing_filled,USD::Initial Jobless Claims::none,USD,Initial Jobless Claims,,2026-07-09,20:30,,215K,215K
+previous_missing_filled,USD::Jobless Claims 4-Week Avg.::none,USD,Jobless Claims 4-Week Avg.,,2026-07-09,20:30,,224.25K,224.25K
+previous_missing_filled,USD::Natural Gas Storage::none,USD,Natural Gas Storage,,2026-07-09,22:30,,76B,76B
+previous_missing_filled,USD::Continuing Jobless Claims::none,USD,Continuing Jobless Claims,,2026-07-09,20:30,,"1,821K","1,821K"
+previous_missing_filled,USD::3-Month Bill Auction::none,USD,3-Month Bill Auction,,2026-07-06,23:30,,3.740%,3.740%
+previous_missing_filled,USD::4-Week Bill Auction::none,USD,4-Week Bill Auction,,2026-07-09,23:30,,3.610%,3.610%
+previous_missing_filled,USD::6-Month Bill Auction::none,USD,6-Month Bill Auction,,2026-07-06,23:30,,3.840%,3.840%
+previous_missing_filled,USD::8-Week Bill Auction::none,USD,8-Week Bill Auction,,2026-07-09,23:30,,3.660%,3.660%
+previous_missing_filled,TRY::Gross FX Reserves::none,TRY,Gross FX Reserves,,2026-07-09,19:30,,59.51B,59.51B
