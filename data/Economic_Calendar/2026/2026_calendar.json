@@ -129109,44 +129109,11 @@
     {
         "Date":"2026-07-01",
         "Day":"Wednesday",
-        "Time":"01:00",
-        "Cur.":"CAD",
-        "Imp.":"Low",
-        "Event":"Budget Balance  (Apr)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-29.73B"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"01:00",
-        "Cur.":"SAR",
-        "Imp.":"Low",
-        "Event":"M3 Money Supply (YoY)  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"10.00%"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"01:00",
-        "Cur.":"SAR",
-        "Imp.":"Low",
-        "Event":"Private Sector Loans (YoY)  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"7.20%"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"01:30",
+        "Time":"01:10",
         "Cur.":"BRL",
         "Imp.":"Low",
         "Event":"CAGED Net Payroll Jobs  (May)",
-        "Actual":"",
+        "Actual":"72.96K",
         "Forecast":"115.00K",
         "Previous":"85.89K"
     },
@@ -129157,7 +129124,7 @@
         "Cur.":"COP",
         "Imp.":"Low",
         "Event":"Interest Rate Decision  (Jun)",
-        "Actual":"",
+        "Actual":"12.00%",
         "Forecast":"11.75%",
         "Previous":"11.25%"
     },
@@ -129165,23 +129132,23 @@
         "Date":"2026-07-01",
         "Day":"Wednesday",
         "Time":"03:00",
-        "Cur.":"CAD",
+        "Cur.":"SAR",
         "Imp.":"Low",
-        "Event":"Budget Balance (YoY)  (Apr)",
-        "Actual":"",
+        "Event":"M3 Money Supply (YoY)  (May)",
+        "Actual":"8.90%",
         "Forecast":null,
-        "Previous":"-55.28B"
+        "Previous":"10.00%"
     },
     {
         "Date":"2026-07-01",
         "Day":"Wednesday",
-        "Time":"03:00",
-        "Cur.":"MXN",
+        "Time":"03:30",
+        "Cur.":"SAR",
         "Imp.":"Low",
-        "Event":"Fiscal Balance  (May)",
-        "Actual":"",
+        "Event":"Private Sector Loans (YoY)  (May)",
+        "Actual":"6.60%",
         "Forecast":null,
-        "Previous":"-37.15B"
+        "Previous":"7.20%"
     },
     {
         "Date":"2026-07-01",
@@ -129190,9 +129157,20 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"API Weekly Crude Oil Stock",
-        "Actual":"",
-        "Forecast":null,
+        "Actual":"-6.072M",
+        "Forecast":"-4.100M",
         "Previous":"-0.765M"
+    },
+    {
+        "Date":"2026-07-01",
+        "Day":"Wednesday",
+        "Time":"04:50",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"Fiscal Balance  (May)",
+        "Actual":"-176.15B",
+        "Forecast":null,
+        "Previous":"-37.15B"
     },
     {
         "Date":"2026-07-01",
@@ -129201,9 +129179,9 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"AIG Construction Index  (Jun)",
-        "Actual":"",
+        "Actual":"-38.1",
         "Forecast":null,
-        "Previous":"-9.9"
+        "Previous":"-11.2"
     },
     {
         "Date":"2026-07-01",
@@ -129212,9 +129190,9 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"AIG Manufacturing Index  (Jun)",
-        "Actual":"",
+        "Actual":"-16.8",
         "Forecast":null,
-        "Previous":"-22.4"
+        "Previous":"-21.3"
     },
     {
         "Date":"2026-07-01",
@@ -129223,7 +129201,7 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"51.5",
         "Forecast":"51.2",
         "Previous":"50.7"
     },
@@ -129234,7 +129212,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Irish Consumer Confidence  (Jun)",
-        "Actual":"",
+        "Actual":"62.2",
         "Forecast":null,
         "Previous":"59.4"
     },
@@ -129245,7 +129223,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Tankan All Small Industry CAPEX  (Q2)",
-        "Actual":"",
+        "Actual":"-8.3%",
         "Forecast":null,
         "Previous":"-8.1%"
     },
@@ -129256,7 +129234,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Tankan Large Non-Manufacturers Diffusion Index  (Q2)",
-        "Actual":"",
+        "Actual":"28",
         "Forecast":"30",
         "Previous":"29"
     },
@@ -129267,7 +129245,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Tankan Small Manufacturers Diffusion Index  (Q2)",
-        "Actual":"",
+        "Actual":"2",
         "Forecast":null,
         "Previous":"4"
     },
@@ -129278,7 +129256,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Tankan Small Manufacturing Index  (Q2)",
-        "Actual":"",
+        "Actual":"9",
         "Forecast":"4",
         "Previous":"7"
     },
@@ -129289,7 +129267,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Tankan Small Non-Manufacturers Diffusion Index  (Q2)",
-        "Actual":"",
+        "Actual":"8",
         "Forecast":null,
         "Previous":"8"
     },
@@ -129300,7 +129278,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Tankan Small Non-Manufacturing Index  (Q2)",
-        "Actual":"",
+        "Actual":"15",
         "Forecast":null,
         "Previous":"16"
     },
@@ -129311,7 +129289,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Tankan All Big Industry CAPEX  (Q2)",
-        "Actual":"",
+        "Actual":"11.5%",
         "Forecast":null,
         "Previous":"3.3%"
     },
@@ -129322,7 +129300,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Tankan Big Manufacturing Outlook Index  (Q2)",
-        "Actual":"",
+        "Actual":"17",
         "Forecast":"13",
         "Previous":"14"
     },
@@ -129333,7 +129311,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Tankan Large Manufacturers Index  (Q2)",
-        "Actual":"",
+        "Actual":"22",
         "Forecast":"16",
         "Previous":"17"
     },
@@ -129344,7 +129322,7 @@
         "Cur.":"JPY",
         "Imp.":"Medium",
         "Event":"Tankan Large Non-Manufacturers Index  (Q2)",
-        "Actual":"",
+        "Actual":"37",
         "Forecast":"36",
         "Previous":"36"
     },
@@ -129355,7 +129333,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"AIB Ireland Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"54.9",
         "Forecast":null,
         "Previous":"55.9"
     },
@@ -129366,7 +129344,7 @@
         "Cur.":"KRW",
         "Imp.":"Low",
         "Event":"Exports (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"70.9%",
         "Forecast":null,
         "Previous":"53.4%"
     },
@@ -129377,7 +129355,7 @@
         "Cur.":"KRW",
         "Imp.":"Low",
         "Event":"Imports (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"30.1%",
         "Forecast":null,
         "Previous":"20.7%"
     },
@@ -129388,7 +129366,7 @@
         "Cur.":"KRW",
         "Imp.":"Low",
         "Event":"Trade Balance  (Jun)",
-        "Actual":"",
+        "Actual":"36.15B",
         "Forecast":null,
         "Previous":"27.04B"
     },
@@ -129399,7 +129377,7 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"46.9",
         "Forecast":null,
         "Previous":"50.0"
     },
@@ -129410,7 +129388,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"54.8",
         "Forecast":"54.9",
         "Previous":"54.5"
     },
@@ -129421,7 +129399,7 @@
         "Cur.":"KRW",
         "Imp.":"Low",
         "Event":"S&P Global South Korea Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"52.1",
         "Forecast":null,
         "Previous":"54.8"
     },
@@ -129432,7 +129410,7 @@
         "Cur.":"MYR",
         "Imp.":"Low",
         "Event":"Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"50.70",
         "Forecast":null,
         "Previous":"49.90"
     },
@@ -129443,7 +129421,7 @@
         "Cur.":"PHP",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"50.9",
         "Forecast":null,
         "Previous":"50.8"
     },
@@ -129454,7 +129432,7 @@
         "Cur.":"SGD",
         "Imp.":"Low",
         "Event":"URA Property Index (QoQ)  (Q2)",
-        "Actual":"",
+        "Actual":"0.50%",
         "Forecast":null,
         "Previous":"0.90%"
     },
@@ -129465,7 +129443,7 @@
         "Cur.":"THB",
         "Imp.":"Low",
         "Event":"Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"53.60",
         "Forecast":null,
         "Previous":"52.60"
     },
@@ -129476,7 +129454,7 @@
         "Cur.":"TWD",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"55.20",
         "Forecast":null,
         "Previous":"56.10"
     },
@@ -129487,7 +129465,7 @@
         "Cur.":"VND",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"51.8",
         "Forecast":null,
         "Previous":"52.8"
     },
@@ -129498,9 +129476,9 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"Building Approvals (YoY)  (May)",
-        "Actual":"",
+        "Actual":"5.30%",
         "Forecast":null,
-        "Previous":"23.10%"
+        "Previous":"10.90%"
     },
     {
         "Date":"2026-07-01",
@@ -129509,7 +129487,7 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"Private House Approvals  (May)",
-        "Actual":"",
+        "Actual":"2.8%",
         "Forecast":null,
         "Previous":"-1.0%"
     },
@@ -129520,9 +129498,9 @@
         "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"Building Approvals (MoM)  (May)",
-        "Actual":"",
+        "Actual":"-1.1%",
         "Forecast":"0.5%",
-        "Previous":"-3.4%"
+        "Previous":"-0.2%"
     },
     {
         "Date":"2026-07-01",
@@ -129531,7 +129509,7 @@
         "Cur.":"CNY",
         "Imp.":"Medium",
         "Event":"RatingDog Manufacturing PMI (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"51.7",
         "Forecast":"51.9",
         "Previous":"51.8"
     },
@@ -129542,7 +129520,7 @@
         "Cur.":"SGD",
         "Imp.":"Low",
         "Event":"Bank Lending  (May)",
-        "Actual":"",
+        "Actual":"917.7B",
         "Forecast":null,
         "Previous":"908.4B"
     },
@@ -129553,7 +129531,7 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Core Inflation (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"2.76%",
         "Forecast":"2.60%",
         "Previous":"2.59%"
     },
@@ -129564,8 +129542,8 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Export Growth (YoY)  (May)",
-        "Actual":"",
-        "Forecast":"4.00%",
+        "Actual":"-5.73%",
+        "Forecast":"6.40%",
         "Previous":"21.98%"
     },
     {
@@ -129575,8 +129553,8 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Import Growth (YoY)  (May)",
-        "Actual":"",
-        "Forecast":"18.00%",
+        "Actual":"22.16%",
+        "Forecast":"19.50%",
         "Previous":"22.49%"
     },
     {
@@ -129586,8 +129564,8 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Inflation (MoM)  (Jun)",
-        "Actual":"",
-        "Forecast":"0.29%",
+        "Actual":"0.44%",
+        "Forecast":"0.30%",
         "Previous":"0.28%"
     },
     {
@@ -129597,7 +129575,7 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Inflation (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"3.34%",
         "Forecast":"3.20%",
         "Previous":"3.08%"
     },
@@ -129608,7 +129586,7 @@
         "Cur.":"IDR",
         "Imp.":"Low",
         "Event":"Trade Balance  (May)",
-        "Actual":"",
+        "Actual":"-1.61B",
         "Forecast":"1.10B",
         "Previous":"0.09B"
     },
@@ -129618,19 +129596,8 @@
         "Time":"12:30",
         "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"Dutch CPI (YoY)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"3.5%"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"12:30",
-        "Cur.":"EUR",
-        "Imp.":"Low",
         "Event":"Dutch GDP (QoQ)  (Q1)",
-        "Actual":"",
+        "Actual":"0.2%",
         "Forecast":"0.1%",
         "Previous":"0.5%"
     },
@@ -129641,7 +129608,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Dutch GDP (YoY)  (Q1)",
-        "Actual":"",
+        "Actual":"1.4%",
         "Forecast":"1.2%",
         "Previous":"1.8%"
     },
@@ -129652,7 +129619,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Dutch Retail Sales (YoY)  (May)",
-        "Actual":"",
+        "Actual":"1.2%",
         "Forecast":null,
         "Previous":"3.0%"
     },
@@ -129663,7 +129630,7 @@
         "Cur.":"INR",
         "Imp.":"Low",
         "Event":"HSBC India Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"54.2",
         "Forecast":"54.5",
         "Previous":"55.0"
     },
@@ -129674,7 +129641,7 @@
         "Cur.":"JPY",
         "Imp.":"Low",
         "Event":"Household Confidence  (Jun)",
-        "Actual":"",
+        "Actual":"33.8",
         "Forecast":"34.1",
         "Previous":"33.6"
     },
@@ -129685,7 +129652,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"Nationwide HPI (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"0.0%",
         "Forecast":"0.1%",
         "Previous":"-0.6%"
     },
@@ -129696,8 +129663,8 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"Nationwide HPI (YoY)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
+        "Actual":"2.2%",
+        "Forecast":"2.4%",
         "Previous":"1.7%"
     },
     {
@@ -129707,7 +129674,7 @@
         "Cur.":"RUB",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"50.3",
         "Forecast":null,
         "Previous":"48.8"
     },
@@ -129718,7 +129685,7 @@
         "Cur.":"AUD",
         "Imp.":"Low",
         "Event":"Commodity Prices (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"16.9%",
         "Forecast":null,
         "Previous":"16.8%"
     },
@@ -129729,9 +129696,9 @@
         "Cur.":"CHF",
         "Imp.":"Low",
         "Event":"Retail Sales (YoY)  (May)",
-        "Actual":"",
+        "Actual":"3.5%",
         "Forecast":"1.8%",
-        "Previous":"1.6%"
+        "Previous":"1.7%"
     },
     {
         "Date":"2026-07-01",
@@ -129740,9 +129707,9 @@
         "Cur.":"SEK",
         "Imp.":"Low",
         "Event":"Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"58.3",
         "Forecast":null,
-        "Previous":"57.3"
+        "Previous":"57.4"
     },
     {
         "Date":"2026-07-01",
@@ -129751,7 +129718,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Austrian CPI (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"0.00%",
         "Forecast":null,
         "Previous":"0.10%"
     },
@@ -129762,7 +129729,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Austrian CPI (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"3.20%",
         "Forecast":null,
         "Previous":"3.77%"
     },
@@ -129773,7 +129740,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Austrian HICP (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"-0.3%",
         "Forecast":null,
         "Previous":"0.1%"
     },
@@ -129784,7 +129751,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Austrian HICP (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"3.1%",
         "Forecast":null,
         "Previous":"3.7%"
     },
@@ -129795,7 +129762,7 @@
         "Cur.":"HUF",
         "Imp.":"Low",
         "Event":"Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"51.5",
         "Forecast":null,
         "Previous":"50.2"
     },
@@ -129806,8 +129773,8 @@
         "Cur.":"PLN",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
-        "Forecast":"49.30",
+        "Actual":"46.10",
+        "Forecast":"49.70",
         "Previous":"49.40"
     },
     {
@@ -129817,7 +129784,7 @@
         "Cur.":"TRY",
         "Imp.":"Low",
         "Event":"Istanbul Chamber of Industry Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"47.10",
         "Forecast":null,
         "Previous":"49.80"
     },
@@ -129828,7 +129795,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"HCOB Spain Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"49.7",
         "Forecast":"51.0",
         "Previous":"51.2"
     },
@@ -129839,7 +129806,7 @@
         "Cur.":"CHF",
         "Imp.":"Medium",
         "Event":"procure.ch Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"54.3",
         "Forecast":"56.4",
         "Previous":"57.3"
     },
@@ -129850,20 +129817,31 @@
         "Cur.":"CZK",
         "Imp.":"Low",
         "Event":"S&P Global Czech Republic Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"53.9",
         "Forecast":"51.8",
         "Previous":"52.2"
     },
     {
         "Date":"2026-07-01",
         "Day":"Wednesday",
-        "Time":"15:30",
-        "Cur.":"PEN",
+        "Time":"15:45",
+        "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"CPI (MoM)  (Jun)",
-        "Actual":"",
+        "Event":"Austrian Unemployment Change  (Jun)",
+        "Actual":"295.5K",
         "Forecast":null,
-        "Previous":"-0.16%"
+        "Previous":"301.7K"
+    },
+    {
+        "Date":"2026-07-01",
+        "Day":"Wednesday",
+        "Time":"15:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Austrian Unemployment Rate  (Jun)",
+        "Actual":"6.9%",
+        "Forecast":null,
+        "Previous":"7.1%"
     },
     {
         "Date":"2026-07-01",
@@ -129872,7 +129850,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"HCOB Italy Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"52.2",
         "Forecast":"52.4",
         "Previous":"52.9"
     },
@@ -129883,7 +129861,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"HCOB France Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"51.2",
         "Forecast":"50.7",
         "Previous":"49.7"
     },
@@ -129894,7 +129872,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"HCOB Germany Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"50.3",
         "Forecast":"50.0",
         "Previous":"50.1"
     },
@@ -129904,30 +129882,8 @@
         "Time":"16:00",
         "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"Austrian Unemployment Change  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"301.7K"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"16:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Austrian Unemployment Rate  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"7.1%"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"16:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
         "Event":"Italian Public Deficit  (Q1)",
-        "Actual":"",
+        "Actual":"7.8%",
         "Forecast":null,
         "Previous":"-1.4%"
     },
@@ -129938,7 +129894,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"S&P Global Greece Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"53.8",
         "Forecast":null,
         "Previous":"53.3"
     },
@@ -129949,7 +129905,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"HCOB Eurozone Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"51.4",
         "Forecast":"51.3",
         "Previous":"51.6"
     },
@@ -129960,7 +129916,7 @@
         "Cur.":"GBP",
         "Imp.":"Medium",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"52.5",
         "Forecast":"53.1",
         "Previous":"53.9"
     },
@@ -129971,7 +129927,7 @@
         "Cur.":"EUR",
         "Imp.":"High",
         "Event":"CPI (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"2.8%",
         "Forecast":"3.0%",
         "Previous":"3.2%"
     },
@@ -129982,7 +129938,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"CPI, n.s.a  (Jun)",
-        "Actual":"",
+        "Actual":"103.07",
         "Forecast":null,
         "Previous":"103.13"
     },
@@ -129993,7 +129949,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Core CPI (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"0.2%",
         "Forecast":null,
         "Previous":"0.3%"
     },
@@ -130004,9 +129960,9 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Greek Unemployment Rate  (May)",
-        "Actual":"",
+        "Actual":"8.1%",
         "Forecast":null,
-        "Previous":"9.5%"
+        "Previous":"9.1%"
     },
     {
         "Date":"2026-07-01",
@@ -130015,7 +129971,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"HICP ex Energy & Food (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"2.2%",
         "Forecast":null,
         "Previous":"2.3%"
     },
@@ -130026,7 +129982,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"HICP ex Energy and Food (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"0.2%",
         "Forecast":null,
         "Previous":"0.3%"
     },
@@ -130037,7 +129993,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"CPI (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"-0.1%",
         "Forecast":null,
         "Previous":"0.1%"
     },
@@ -130048,7 +130004,7 @@
         "Cur.":"EUR",
         "Imp.":"Medium",
         "Event":"Core CPI (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"2.4%",
         "Forecast":"2.5%",
         "Previous":"2.6%"
     },
@@ -130059,7 +130015,7 @@
         "Cur.":"ZAR",
         "Imp.":"Low",
         "Event":"Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"47.3",
         "Forecast":null,
         "Previous":"50.8"
     },
@@ -130070,20 +130026,31 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Challenger Job Cuts  (Jun)",
-        "Actual":"",
+        "Actual":"45.849K",
         "Forecast":null,
         "Previous":"97.006K"
     },
     {
         "Date":"2026-07-01",
         "Day":"Wednesday",
-        "Time":"18:00",
-        "Cur.":"EUR",
+        "Time":"17:30",
+        "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Irish Unemployment  (Jun)",
-        "Actual":"",
+        "Event":"Challenger Job Cuts (YoY)",
+        "Actual":"-4.5%",
         "Forecast":null,
-        "Previous":"4.9%"
+        "Previous":"3.4%"
+    },
+    {
+        "Date":"2026-07-01",
+        "Day":"Wednesday",
+        "Time":"18:00",
+        "Cur.":"GHS",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"5.30%",
+        "Forecast":null,
+        "Previous":"3.70%"
     },
     {
         "Date":"2026-07-01",
@@ -130099,13 +130066,13 @@
     {
         "Date":"2026-07-01",
         "Day":"Wednesday",
-        "Time":"19:00",
-        "Cur.":"EGP",
+        "Time":"18:35",
+        "Cur.":"PEN",
         "Imp.":"Low",
-        "Event":"M2 Money Supply (YoY)  (May)",
-        "Actual":"",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"0.23%",
         "Forecast":null,
-        "Previous":"19.30%"
+        "Previous":"-0.16%"
     },
     {
         "Date":"2026-07-01",
@@ -130114,7 +130081,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Car Registration (MoM)  (Jun)",
-        "Actual":"",
+        "Actual":"14.80%",
         "Forecast":null,
         "Previous":"4.70%"
     },
@@ -130125,7 +130092,7 @@
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Car Registration (YoY)  (Jun)",
-        "Actual":"",
+        "Actual":"7.80%",
         "Forecast":null,
         "Previous":"-0.80%"
     },
@@ -130136,7 +130103,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"MBA 30-Year Mortgage Rate",
-        "Actual":"",
+        "Actual":"6.57%",
         "Forecast":null,
         "Previous":"6.59%"
     },
@@ -130147,7 +130114,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"MBA Mortgage Applications (WoW)",
-        "Actual":"",
+        "Actual":"0.0%",
         "Forecast":null,
         "Previous":"1.0%"
     },
@@ -130158,7 +130125,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"MBA Purchase Index",
-        "Actual":"",
+        "Actual":"170.6",
         "Forecast":null,
         "Previous":"169.7"
     },
@@ -130169,7 +130136,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Mortgage Market Index",
-        "Actual":"",
+        "Actual":"272.2",
         "Forecast":null,
         "Previous":"272.1"
     },
@@ -130180,7 +130147,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Mortgage Refinance Index",
-        "Actual":"",
+        "Actual":"828.7",
         "Forecast":null,
         "Previous":"834.2"
     },
@@ -130191,20 +130158,20 @@
         "Cur.":"BRL",
         "Imp.":"Low",
         "Event":"Bank lending (MoM)  (May)",
-        "Actual":"",
+        "Actual":"0.6%",
         "Forecast":null,
         "Previous":"0.3%"
     },
     {
         "Date":"2026-07-01",
         "Day":"Wednesday",
-        "Time":"19:30",
-        "Cur.":"INR",
-        "Imp.":"Low",
-        "Event":"M3 Money Supply",
+        "Time":"19:45",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"FOMC Member Daly Speaks",
         "Actual":"",
         "Forecast":null,
-        "Previous":"11.9%"
+        "Previous":""
     },
     {
         "Date":"2026-07-01",
@@ -130213,9 +130180,31 @@
         "Cur.":"CZK",
         "Imp.":"Low",
         "Event":"Budget Balance  (Jun)",
-        "Actual":"",
+        "Actual":"-183.600B",
         "Forecast":null,
         "Previous":"-170.200B"
+    },
+    {
+        "Date":"2026-07-01",
+        "Day":"Wednesday",
+        "Time":"20:00",
+        "Cur.":"ZAR",
+        "Imp.":"Low",
+        "Event":"Total Vehicle Sales  (Jun)",
+        "Actual":"54.48K",
+        "Forecast":null,
+        "Previous":"50.99K"
+    },
+    {
+        "Date":"2026-07-01",
+        "Day":"Wednesday",
+        "Time":"20:00",
+        "Cur.":"ZAR",
+        "Imp.":"Low",
+        "Event":"Total Vehicle Sales (YoY)  (Jun)",
+        "Actual":"15.30%",
+        "Forecast":null,
+        "Previous":"12.80%"
     },
     {
         "Date":"2026-07-01",
@@ -130224,20 +130213,9 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"ADP Nonfarm Employment Change  (Jun)",
-        "Actual":"",
+        "Actual":"98K",
         "Forecast":"118K",
         "Previous":"122K"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"20:15",
-        "Cur.":"ZAR",
-        "Imp.":"Low",
-        "Event":"Total Vehicle Sales  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"51.07K"
     },
     {
         "Date":"2026-07-01",
@@ -130246,7 +130224,7 @@
         "Cur.":"CLP",
         "Imp.":"Low",
         "Event":"Economic Activity (YoY)  (May)",
-        "Actual":"",
+        "Actual":"-0.9%",
         "Forecast":"0.2%",
         "Previous":"-1.2%"
     },
@@ -130257,31 +130235,9 @@
         "Cur.":"BRL",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"50.8",
         "Forecast":null,
         "Previous":"49.1"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"21:00",
-        "Cur.":"BWP",
-        "Imp.":"Low",
-        "Event":"GDP (YoY)  (Q1)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-5.40%"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"21:00",
-        "Cur.":"BWP",
-        "Imp.":"Low",
-        "Event":"GDP Quarterly  (Q1)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-11.40%"
     },
     {
         "Date":"2026-07-01",
@@ -130334,7 +130290,7 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"53.9",
         "Forecast":"55.7",
         "Previous":"55.1"
     },
@@ -130345,7 +130301,7 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"ISM Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"53.3",
         "Forecast":"53.8",
         "Previous":"54.0"
     },
@@ -130356,7 +130312,7 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"ISM Manufacturing Prices  (Jun)",
-        "Actual":"",
+        "Actual":"73.0",
         "Forecast":"77.7",
         "Previous":"82.1"
     },
@@ -130367,7 +130323,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"ISM Manufacturing New Orders Index  (Jun)",
-        "Actual":"",
+        "Actual":"56.0",
         "Forecast":null,
         "Previous":"56.8"
     },
@@ -130378,9 +130334,9 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Construction Spending (MoM)  (May)",
-        "Actual":"",
+        "Actual":"0.1%",
         "Forecast":"0.1%",
-        "Previous":"0.4%"
+        "Previous":"0.3%"
     },
     {
         "Date":"2026-07-01",
@@ -130389,7 +130345,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"ISM Manufacturing Employment  (Jun)",
-        "Actual":"",
+        "Actual":"49.7",
         "Forecast":null,
         "Previous":"48.6"
     },
@@ -130411,8 +130367,8 @@
         "Cur.":"USD",
         "Imp.":"High",
         "Event":"Crude Oil Inventories",
-        "Actual":"",
-        "Forecast":"-4.800M",
+        "Actual":"-3.775M",
+        "Forecast":"-2.900M",
         "Previous":"-6.088M"
     },
     {
@@ -130422,7 +130378,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Crude Oil Imports",
-        "Actual":"",
+        "Actual":"0.370M",
         "Forecast":null,
         "Previous":"0.094M"
     },
@@ -130433,7 +130389,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Distillate Fuel Production",
-        "Actual":"",
+        "Actual":"-0.042M",
         "Forecast":null,
         "Previous":"0.055M"
     },
@@ -130444,7 +130400,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"EIA Refinery Crude Runs  (WoW)",
-        "Actual":"",
+        "Actual":"0.085M",
         "Forecast":null,
         "Previous":"-0.081M"
     },
@@ -130455,8 +130411,8 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"EIA Weekly Distillates Stocks",
-        "Actual":"",
-        "Forecast":null,
+        "Actual":"2.483M",
+        "Forecast":"-0.700M",
         "Previous":"3.064M"
     },
     {
@@ -130466,7 +130422,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"EIA Weekly Refinery Utilization Rates (WoW)",
-        "Actual":"",
+        "Actual":"0.5%",
         "Forecast":null,
         "Previous":"-0.6%"
     },
@@ -130477,8 +130433,8 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Gasoline Inventories",
-        "Actual":"",
-        "Forecast":null,
+        "Actual":"-2.333M",
+        "Forecast":"-0.950M",
         "Previous":"2.064M"
     },
     {
@@ -130488,7 +130444,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Gasoline Production",
-        "Actual":"",
+        "Actual":"0.481M",
         "Forecast":null,
         "Previous":"-0.588M"
     },
@@ -130499,7 +130455,7 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Heating Oil Stockpiles",
-        "Actual":"",
+        "Actual":"-0.310M",
         "Forecast":null,
         "Previous":"0.722M"
     },
@@ -130510,7 +130466,7 @@
         "Cur.":"USD",
         "Imp.":"Medium",
         "Event":"Cushing Crude Oil Inventories",
-        "Actual":"",
+        "Actual":"0.709M",
         "Forecast":null,
         "Previous":"-1.077M"
     },
@@ -130521,20 +130477,9 @@
         "Cur.":"MXN",
         "Imp.":"Low",
         "Event":"S&P Global Manufacturing PMI  (Jun)",
-        "Actual":"",
+        "Actual":"51.30",
         "Forecast":null,
         "Previous":"49.60"
-    },
-    {
-        "Date":"2026-07-01",
-        "Day":"Wednesday",
-        "Time":"23:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"Atlanta Fed GDPNow  (Q2)",
-        "Actual":"",
-        "Forecast":"2.5%",
-        "Previous":"2.5%"
     },
     {
         "Date":"2026-07-02",
@@ -130554,7 +130499,7 @@
         "Cur.":"RUB",
         "Imp.":"Low",
         "Event":"Business Confidence  (Jun)",
-        "Actual":"",
+        "Actual":"-2.1",
         "Forecast":null,
         "Previous":"-1.0"
     },
@@ -130565,7 +130510,7 @@
         "Cur.":"RUB",
         "Imp.":"Low",
         "Event":"Russian Real Wage Growth (YoY)  (Apr)",
-        "Actual":"",
+        "Actual":"5.1%",
         "Forecast":null,
         "Previous":"8.1%"
     },
@@ -130575,8 +130520,19 @@
         "Time":"00:00",
         "Cur.":"RUB",
         "Imp.":"Medium",
+        "Event":"GDP Monthly (YoY)  (May)",
+        "Actual":"0.3%",
+        "Forecast":null,
+        "Previous":"1.3%"
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
+        "Time":"00:00",
+        "Cur.":"RUB",
+        "Imp.":"Medium",
         "Event":"Retail Sales (YoY)  (May)",
-        "Actual":"",
+        "Actual":"7.8%",
         "Forecast":null,
         "Previous":"6.5%"
     },
@@ -130587,9 +130543,20 @@
         "Cur.":"RUB",
         "Imp.":"Medium",
         "Event":"Unemployment Rate  (May)",
-        "Actual":"",
+        "Actual":"2.1%",
         "Forecast":null,
         "Previous":"2.2%"
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
+        "Time":"01:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"M2 Money Supply (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"19.30%"
     },
     {
         "Date":"2026-07-02",
@@ -130605,6 +130572,17 @@
     {
         "Date":"2026-07-02",
         "Day":"Thursday",
+        "Time":"01:00",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"Atlanta Fed GDPNow  (Q2)",
+        "Actual":"",
+        "Forecast":"2.5%",
+        "Previous":"2.5%"
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
         "Time":"01:30",
         "Cur.":"BRL",
         "Imp.":"Low",
@@ -130616,6 +130594,17 @@
     {
         "Date":"2026-07-02",
         "Day":"Thursday",
+        "Time":"03:15",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"U.S. President Trump Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
         "Time":"04:00",
         "Cur.":"ARS",
         "Imp.":"Low",
@@ -130623,6 +130612,28 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"21,513.59B"
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
+        "Time":"04:00",
+        "Cur.":"BHD",
+        "Imp.":"Low",
+        "Event":"M2 Money Supply  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"8.20%"
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
+        "Time":"04:00",
+        "Cur.":"BHD",
+        "Imp.":"Low",
+        "Event":"Private Sector Credit (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.80%"
     },
     {
         "Date":"2026-07-02",
@@ -130720,7 +130731,7 @@
         "Imp.":"Medium",
         "Event":"Trade Balance  (May)",
         "Actual":"",
-        "Forecast":"2.180B",
+        "Forecast":"2.190B",
         "Previous":"1.791B"
     },
     {
@@ -130753,7 +130764,7 @@
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.5%",
         "Previous":"0.6%"
     },
     {
@@ -130786,7 +130797,7 @@
         "Imp.":"Medium",
         "Event":"Spanish Unemployment Change  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-40.8K",
         "Previous":"-36.3K"
     },
     {
@@ -130810,6 +130821,28 @@
         "Actual":"",
         "Forecast":"5.1%",
         "Previous":"5.1%"
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
+        "Time":"16:00",
+        "Cur.":"TRY",
+        "Imp.":"Low",
+        "Event":"Exports  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"22.50B"
+    },
+    {
+        "Date":"2026-07-02",
+        "Day":"Thursday",
+        "Time":"16:00",
+        "Cur.":"TRY",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-5.61B"
     },
     {
         "Date":"2026-07-02",
@@ -131006,7 +131039,7 @@
         "Imp.":"High",
         "Event":"Initial Jobless Claims",
         "Actual":"",
-        "Forecast":"220K",
+        "Forecast":"219K",
         "Previous":"215K"
     },
     {
@@ -131039,7 +131072,7 @@
         "Imp.":"Low",
         "Event":"Average Weekly Hours  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"34.3",
         "Previous":"34.3"
     },
     {
@@ -131072,7 +131105,7 @@
         "Imp.":"Low",
         "Event":"Manufacturing Payrolls  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3K",
         "Previous":"7K"
     },
     {
@@ -131083,7 +131116,7 @@
         "Imp.":"Medium",
         "Event":"Average Hourly Earnings (YoY) (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.5%",
         "Previous":"3.4%"
     },
     {
@@ -131116,7 +131149,7 @@
         "Imp.":"Medium",
         "Event":"Private Nonfarm Payrolls  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"115K",
         "Previous":"120K"
     },
     {
@@ -131204,7 +131237,7 @@
         "Imp.":"Medium",
         "Event":"Factory Orders (MoM)  (May)",
         "Actual":"",
-        "Forecast":"2.1%",
+        "Forecast":"-1.7%",
         "Previous":"4.8%"
     },
     {
@@ -131215,7 +131248,7 @@
         "Imp.":"Low",
         "Event":"Natural Gas Storage",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"81B",
         "Previous":"76B"
     },
     {
@@ -131315,7 +131348,7 @@
         "Event":"U.S. Baker Hughes Oil Rig Count",
         "Actual":"",
         "Forecast":null,
-        "Previous":""
+        "Previous":"440"
     },
     {
         "Date":"2026-07-03",
@@ -131326,7 +131359,7 @@
         "Event":"U.S. Baker Hughes Total Rig Count",
         "Actual":"",
         "Forecast":null,
-        "Previous":""
+        "Previous":"573"
     },
     {
         "Date":"2026-07-03",
@@ -131895,6 +131928,17 @@
         "Time":"18:00",
         "Cur.":"EUR",
         "Imp.":"Low",
+        "Event":"Irish Unemployment  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.9%"
+    },
+    {
+        "Date":"2026-07-03",
+        "Day":"Friday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
         "Event":"Spanish Consumer Confidence  (May)",
         "Actual":"",
         "Forecast":null,
@@ -132009,17 +132053,6 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-2.300B"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"02:00",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"Trade Balance  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"7.82B"
     },
     {
         "Date":"2026-07-04",
@@ -132313,7 +132346,7 @@
         "Time":"09:00",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"MI Inflation Gauge (MoM)",
+        "Event":"MI Inflation Gauge (MoM)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"-0.3%"
@@ -132324,7 +132357,7 @@
         "Time":"09:30",
         "Cur.":"AUD",
         "Imp.":"Low",
-        "Event":"ANZ Job Advertisements (MoM)",
+        "Event":"ANZ Job Advertisements (MoM)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"1.8%"
@@ -132453,17 +132486,6 @@
     {
         "Date":"2026-07-06",
         "Day":"Monday",
-        "Time":"15:00",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Austrian Industrial Production (YoY)  (May)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"0.6%"
-    },
-    {
-        "Date":"2026-07-06",
-        "Day":"Monday",
         "Time":"15:30",
         "Cur.":"EUR",
         "Imp.":"Low",
@@ -132511,7 +132533,7 @@
         "Time":"16:00",
         "Cur.":"GBP",
         "Imp.":"Low",
-        "Event":"Car Registration (YoY)",
+        "Event":"Car Registration (YoY)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"7.1%"
@@ -132643,7 +132665,7 @@
         "Time":"19:00",
         "Cur.":"EGP",
         "Imp.":"Low",
-        "Event":"Foreign Reserves (USD)",
+        "Event":"Foreign Reserves (USD)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"53.13B"
@@ -132744,8 +132766,8 @@
         "Imp.":"High",
         "Event":"S&P Global Services PMI  (Jun)",
         "Actual":"",
-        "Forecast":null,
-        "Previous":"51.3"
+        "Forecast":"51.3",
+        "Previous":"50.7"
     },
     {
         "Date":"2026-07-06",
@@ -132755,8 +132777,8 @@
         "Imp.":"Medium",
         "Event":"S&P Global Composite PMI  (Jun)",
         "Actual":"",
-        "Forecast":null,
-        "Previous":"52.2"
+        "Forecast":"52.2",
+        "Previous":"51.5"
     },
     {
         "Date":"2026-07-06",
@@ -132844,7 +132866,7 @@
         "Event":"3-Month Bill Auction",
         "Actual":"",
         "Forecast":null,
-        "Previous":""
+        "Previous":"3.740%"
     },
     {
         "Date":"2026-07-06",
@@ -132855,7 +132877,7 @@
         "Event":"6-Month Bill Auction",
         "Actual":"",
         "Forecast":null,
-        "Previous":""
+        "Previous":"3.840%"
     },
     {
         "Date":"2026-07-07",
@@ -132888,7 +132910,7 @@
         "Event":"Overall wage income of employees  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"3.6%"
+        "Previous":"3.5%"
     },
     {
         "Date":"2026-07-07",
@@ -132899,7 +132921,7 @@
         "Event":"Overtime Pay (YoY)  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"4.80%"
+        "Previous":"4.20%"
     },
     {
         "Date":"2026-07-07",
@@ -132929,7 +132951,7 @@
         "Time":"07:50",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Foreign Reserves (USD)",
+        "Event":"Foreign Reserves (USD)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"1,305.9B"
@@ -133061,7 +133083,7 @@
         "Time":"13:00",
         "Cur.":"JPY",
         "Imp.":"Low",
-        "Event":"Leading Index",
+        "Event":"Leading Index  (May)",
         "Actual":"",
         "Forecast":null,
         "Previous":"116.1"
@@ -133204,17 +133226,6 @@
         "Time":"14:45",
         "Cur.":"EUR",
         "Imp.":"Low",
-        "Event":"French Current Account",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-0.20B"
-    },
-    {
-        "Date":"2026-07-07",
-        "Day":"Tuesday",
-        "Time":"14:45",
-        "Cur.":"EUR",
-        "Imp.":"Low",
         "Event":"French Exports  (May)",
         "Actual":"",
         "Forecast":null,
@@ -133262,7 +133273,7 @@
         "Event":"Foreign Reserves (USD)  (Jun)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"710,818.0B"
+        "Previous":"710.8B"
     },
     {
         "Date":"2026-07-07",
@@ -133270,7 +133281,7 @@
         "Time":"15:00",
         "Cur.":"CZK",
         "Imp.":"Low",
-        "Event":"CPI (MoM)",
+        "Event":"CPI (MoM)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"0.1%"
@@ -133281,7 +133292,7 @@
         "Time":"15:00",
         "Cur.":"CZK",
         "Imp.":"Low",
-        "Event":"CPI (YoY)",
+        "Event":"CPI (YoY)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"2.1%"
@@ -133344,6 +133355,17 @@
     {
         "Date":"2026-07-07",
         "Day":"Tuesday",
+        "Time":"15:00",
+        "Cur.":"MYR",
+        "Imp.":"Low",
+        "Event":"FX Reserves USD",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"130.5B"
+    },
+    {
+        "Date":"2026-07-07",
+        "Day":"Tuesday",
         "Time":"16:00",
         "Cur.":"CNY",
         "Imp.":"Low",
@@ -133391,7 +133413,7 @@
         "Time":"16:30",
         "Cur.":"HKD",
         "Imp.":"Low",
-        "Event":"Foreign Reserves (USD)",
+        "Event":"Foreign Reserves (USD)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"446.50B"
@@ -133424,7 +133446,7 @@
         "Time":"17:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
-        "Event":"Mortgage Rate (GBP)",
+        "Event":"Mortgage Rate (GBP)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"6.60%"
@@ -133521,12 +133543,34 @@
         "Date":"2026-07-07",
         "Day":"Tuesday",
         "Time":"20:00",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"GlobalDairyTrade Price Index",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-2.8%"
+    },
+    {
+        "Date":"2026-07-07",
+        "Day":"Tuesday",
+        "Time":"20:00",
         "Cur.":"PLN",
         "Imp.":"Low",
-        "Event":"FX Reserves (EUR)",
+        "Event":"FX Reserves (EUR)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"255.60B"
+    },
+    {
+        "Date":"2026-07-07",
+        "Day":"Tuesday",
+        "Time":"20:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Milk Auctions",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3,979.0"
     },
     {
         "Date":"2026-07-07",
@@ -133589,7 +133633,7 @@
         "Time":"20:30",
         "Cur.":"CLP",
         "Imp.":"Low",
-        "Event":"Exports (USD)",
+        "Event":"Exports (USD)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"9,540M"
@@ -133600,7 +133644,7 @@
         "Time":"20:30",
         "Cur.":"CLP",
         "Imp.":"Low",
-        "Event":"Imports (USD)",
+        "Event":"Imports (USD)  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"7,105M"
@@ -133622,7 +133666,7 @@
         "Time":"20:30",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"Exports",
+        "Event":"Exports  (May)",
         "Actual":"",
         "Forecast":null,
         "Previous":"327.10B"
@@ -133633,7 +133677,7 @@
         "Time":"20:30",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"Imports",
+        "Event":"Imports  (May)",
         "Actual":"",
         "Forecast":null,
         "Previous":"383.00B"
@@ -133652,13 +133696,13 @@
     {
         "Date":"2026-07-07",
         "Day":"Tuesday",
-        "Time":"21:00",
-        "Cur.":"RUB",
+        "Time":"20:55",
+        "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"Central Bank reserves (USD)",
+        "Event":"Redbook (YoY)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"743.8B"
+        "Previous":"10.5%"
     },
     {
         "Date":"2026-07-07",
@@ -133699,7 +133743,7 @@
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"IBD\/TIPP Economic Optimism",
+        "Event":"IBD\/TIPP Economic Optimism  (Jul)",
         "Actual":"",
         "Forecast":null,
         "Previous":"42.5"
@@ -133721,7 +133765,7 @@
         "Time":"23:00",
         "Cur.":"USD",
         "Imp.":"Medium",
-        "Event":"NY Fed 1-Year Consumer Inflation Expectations",
+        "Event":"NY Fed 1-Year Consumer Inflation Expectations  (Jun)",
         "Actual":"",
         "Forecast":null,
         "Previous":"3.5%"
@@ -133769,6 +133813,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"4.192%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"04:30",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"API Weekly Crude Oil Stock",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-6.072M"
     },
     {
         "Date":"2026-07-08",
@@ -133823,7 +133878,7 @@
         "Event":"Adjusted Current Account  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"421.11T"
+        "Previous":"4.21T"
     },
     {
         "Date":"2026-07-08",
@@ -133835,6 +133890,39 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"3.908T"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Building Approvals (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"5.30%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Private House Approvals  (May)",
+        "Actual":"",
+        "Forecast":"2.8%",
+        "Previous":"-0.4%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Medium",
+        "Event":"Building Approvals (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-1.1%"
     },
     {
         "Date":"2026-07-08",
@@ -133861,17 +133949,6 @@
     {
         "Date":"2026-07-08",
         "Day":"Wednesday",
-        "Time":"11:00",
-        "Cur.":"IDR",
-        "Imp.":"Low",
-        "Event":"FX Reserves (USD)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"144.90B"
-    },
-    {
-        "Date":"2026-07-08",
-        "Day":"Wednesday",
         "Time":"12:30",
         "Cur.":"EUR",
         "Imp.":"Low",
@@ -133890,6 +133967,28 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"43.6"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"14:00",
+        "Cur.":"SEK",
+        "Imp.":"Low",
+        "Event":"CPIF (CPI at constant interest rates) (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"14:00",
+        "Cur.":"SEK",
+        "Imp.":"Low",
+        "Event":"CPIF (CPI at constant interest rates) (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.5%"
     },
     {
         "Date":"2026-07-08",
@@ -133934,6 +134033,50 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"6.3%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"14:00",
+        "Cur.":"SEK",
+        "Imp.":"Low",
+        "Event":"Industrial Production (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.2%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"14:00",
+        "Cur.":"SEK",
+        "Imp.":"Low",
+        "Event":"Industrial Production (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"7.1%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"14:00",
+        "Cur.":"SEK",
+        "Imp.":"Medium",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.0%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"14:00",
+        "Cur.":"SEK",
+        "Imp.":"Medium",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.8%"
     },
     {
         "Date":"2026-07-08",
@@ -133993,6 +134136,28 @@
     {
         "Date":"2026-07-08",
         "Day":"Wednesday",
+        "Time":"17:00",
+        "Cur.":"HUF",
+        "Imp.":"Low",
+        "Event":"Budget Balance  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"43.5B"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"17:30",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"German 10-Year Bund Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.960%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
         "Time":"18:00",
         "Cur.":"EUR",
         "Imp.":"Low",
@@ -134037,6 +134202,83 @@
     {
         "Date":"2026-07-08",
         "Day":"Wednesday",
+        "Time":"19:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"MBA 30-Year Mortgage Rate",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.57%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"19:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"MBA Mortgage Applications (WoW)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.0%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"19:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"MBA Purchase Index",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"170.6"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"19:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Mortgage Market Index",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"272.2"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"19:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Mortgage Refinance Index",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"828.7"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Medium",
+        "Event":"Retail Sales (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-1.5%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Medium",
+        "Event":"Retail Sales (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.0%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
         "Time":"20:00",
         "Cur.":"CLP",
         "Imp.":"Low",
@@ -134044,6 +134286,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"0.2%"
+    },
+    {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"20:00",
+        "Cur.":"CLP",
+        "Imp.":"Low",
+        "Event":"Core CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.4%"
     },
     {
         "Date":"2026-07-08",
@@ -134180,6 +134433,28 @@
     {
         "Date":"2026-07-09",
         "Day":"Thursday",
+        "Time":"01:00",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"10-Year Note Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.538%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"02:00",
+        "Cur.":"USD",
+        "Imp.":"High",
+        "Event":"FOMC Meeting Minutes",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
         "Time":"03:00",
         "Cur.":"ARS",
         "Imp.":"Low",
@@ -134279,6 +134554,17 @@
     {
         "Date":"2026-07-09",
         "Day":"Thursday",
+        "Time":"11:35",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"5-Year JGB Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.905%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
         "Time":"12:00",
         "Cur.":"MYR",
         "Imp.":"Low",
@@ -134286,6 +134572,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"8.2%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"12:15",
+        "Cur.":"THB",
+        "Imp.":"Low",
+        "Event":"Consumer Confidence  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"49.5"
     },
     {
         "Date":"2026-07-09",
@@ -134379,6 +134676,17 @@
         "Date":"2026-07-09",
         "Day":"Thursday",
         "Time":"14:00",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Machine Tool Orders (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"37.4%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"14:00",
         "Cur.":"NOK",
         "Imp.":"Low",
         "Event":"PPI (YoY)  (Jun)",
@@ -134396,6 +134704,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"-1.2%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"15:00",
+        "Cur.":"CZK",
+        "Imp.":"Low",
+        "Event":"Construction Output (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"7.7%"
     },
     {
         "Date":"2026-07-09",
@@ -134445,23 +134764,12 @@
         "Date":"2026-07-09",
         "Day":"Thursday",
         "Time":"16:00",
-        "Cur.":"NAD",
-        "Imp.":"Low",
-        "Event":"CPI (MoM)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"1.20%"
-    },
-    {
-        "Date":"2026-07-09",
-        "Day":"Thursday",
-        "Time":"16:00",
-        "Cur.":"NAD",
+        "Cur.":"MZN",
         "Imp.":"Low",
         "Event":"CPI (YoY)  (Jun)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"4.10%"
+        "Previous":"7.22%"
     },
     {
         "Date":"2026-07-09",
@@ -134500,6 +134808,17 @@
         "Date":"2026-07-09",
         "Day":"Thursday",
         "Time":"17:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"14.60%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"17:00",
         "Cur.":"EUR",
         "Imp.":"Low",
         "Event":"Greek CPI (YoY)  (Jun)",
@@ -134517,6 +134836,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"4.9%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"17:10",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian 12-Month BOT Auction",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.695%"
     },
     {
         "Date":"2026-07-09",
@@ -134605,6 +134935,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"49.70"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"Eurogroup Meetings",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-07-09",
@@ -134840,6 +135181,28 @@
     {
         "Date":"2026-07-09",
         "Day":"Thursday",
+        "Time":"21:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"Core CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"13.80%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"21:00",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"FOMC Member Williams Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
         "Time":"22:00",
         "Cur.":"USD",
         "Imp.":"High",
@@ -134891,5 +135254,852 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"All Day",
+        "Cur.":"",
+        "Imp.":"Holiday",
+        "Event":"New Zealand - Bank Holiday",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"00:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"Interest Rate Decision",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"19.00%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"00:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"Overnight Lending Rate",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"20.00%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"00:05",
+        "Cur.":"UAH",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"00:05",
+        "Cur.":"UAH",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"8.2%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"06:45",
+        "Cur.":"NZD",
+        "Imp.":"Low",
+        "Event":"External Migration & Visitors  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"8.00%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"07:00",
+        "Cur.":"PEN",
+        "Imp.":"Low",
+        "Event":"Interest Rate Decision  (Jul)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.25%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"07:30",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Motorbike Sales (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-5.10%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"07:30",
+        "Cur.":"PEN",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3,304M"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"PPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"07:50",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"PPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.3%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"09:00",
+        "Cur.":"PHP",
+        "Imp.":"Low",
+        "Event":"Philippines Foreign Direct Investment (USD)  (Apr)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.60B"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"10:00",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Thomson Reuters IPSOS PCSI  (Jul)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"46.95"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"10:00",
+        "Cur.":"CNY",
+        "Imp.":"Low",
+        "Event":"China Thomson Reuters IPSOS PCSI  (Jul)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"72.28"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"10:00",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"Thomson Reuters IPSOS PCSI  (Jul)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"63.84"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"10:00",
+        "Cur.":"JPY",
+        "Imp.":"Low",
+        "Event":"Thomson Reuters IPSOS PCSI  (Jul)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"38.52"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"10:00",
+        "Cur.":"KRW",
+        "Imp.":"Low",
+        "Event":"Thomson Reuters IPSOS PCSI  (Jul)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"47.71"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"12:00",
+        "Cur.":"MYR",
+        "Imp.":"Low",
+        "Event":"Unemployment Rate  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.0%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"12:30",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Dutch Manufacturing Production (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.4%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"13:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Estonian Trade Balance  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-365.4M"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"DKK",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.60%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"DKK",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.9%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"DKK",
+        "Imp.":"Low",
+        "Event":"HICP (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.80%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"High",
+        "Event":"German CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":"-0.3%",
+        "Previous":"-0.3%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"German HICP (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":"-0.2%",
+        "Previous":"-0.2%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"German HICP (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":"2.4%",
+        "Previous":"2.7%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Lithuania PPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"13.60%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Lithuania PPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"12.80%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Lithuania Trade Balance  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.61B"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"German CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":"2.3%",
+        "Previous":"2.6%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"IDR",
+        "Imp.":"Low",
+        "Event":"Car Sales (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"14.00%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"NOK",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.2%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"NOK",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.1%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"NOK",
+        "Imp.":"Low",
+        "Event":"Core CPI YTD  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.4%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"NOK",
+        "Imp.":"Low",
+        "Event":"Core Inflation (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.4%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"NOK",
+        "Imp.":"Low",
+        "Event":"Trade Balance  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"62.6B"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:00",
+        "Cur.":"RON",
+        "Imp.":"Low",
+        "Event":"Trade Balance (EUR)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-3.075M"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"France Inflation Ex-Tobacco (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.40%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":"1.8%",
+        "Previous":"2.4%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French CPI NSA (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-0.20%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French CPI NSA (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.80%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"French HICP (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":"2.0%",
+        "Previous":"2.0%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"French CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":"0.1%",
+        "Previous":"0.1%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"14:45",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"French HICP (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":"-0.3%",
+        "Previous":"-0.3%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"15:00",
+        "Cur.":"CHF",
+        "Imp.":"Medium",
+        "Event":"SECO Consumer Climate  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-38"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"15:00",
+        "Cur.":"CZK",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.1%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"15:00",
+        "Cur.":"CZK",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.1%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"15:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Austrian Industrial Production (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.6%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"15:00",
+        "Cur.":"TRY",
+        "Imp.":"Low",
+        "Event":"Industrial Production (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.70%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"15:00",
+        "Cur.":"TRY",
+        "Imp.":"Low",
+        "Event":"Industrial Production (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.0%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"16:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian Industrial Production (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.5%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"16:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Italian Industrial Production (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.3%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"16:00",
+        "Cur.":"NAD",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"1.20%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"16:00",
+        "Cur.":"NAD",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.10%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"17:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Greek Industrial Production (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.1%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"17:00",
+        "Cur.":"USD",
+        "Imp.":"Medium",
+        "Event":"IEA Monthly Report",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"ECOFIN Meetings",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Latvian Trade Balance  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-249.2M"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Portuguese CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.1%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Portuguese CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.2%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"18:00",
+        "Cur.":"EUR",
+        "Imp.":"Low",
+        "Event":"Portuguese Trade Balance  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-8.56B"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"19:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"Bank Loan Growth",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"17.7%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"19:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"Deposit Growth",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"12.0%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"19:30",
+        "Cur.":"INR",
+        "Imp.":"Low",
+        "Event":"FX Reserves, USD",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"Brazilian IPCA Inflation Index SA (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.60%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.58%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Medium",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"4.72%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:00",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"Industrial Production (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.1%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:00",
+        "Cur.":"MXN",
+        "Imp.":"Low",
+        "Event":"Industrial Production (YoY)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"2.3%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:00",
+        "Cur.":"RWF",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"12.90%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Avg hourly wages Permanent employee  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"3.2%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Full Employment Change  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"154.0K"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Part Time Employment Change  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-66.2K"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Low",
+        "Event":"Participation Rate  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"65.0%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Building Permits (MoM)  (May)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-7.6%"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Employment Change  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"87.8K"
+    },
+    {
+        "Date":"2026-07-10",
+        "Day":"Friday",
+        "Time":"20:30",
+        "Cur.":"CAD",
+        "Imp.":"Medium",
+        "Event":"Unemployment Rate  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.6%"
     }
 ]
