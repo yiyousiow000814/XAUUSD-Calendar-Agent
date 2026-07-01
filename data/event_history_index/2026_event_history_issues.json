@@ -1,5 +1,5 @@
 {
-  "generated_at": "01-07-2026 01:27",
+  "generated_at": "01-07-2026 16:21",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -669,30 +669,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Oil Rig Count",
-      "period": "",
-      "date": "2026-07-03",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "440",
-      "previous_effective": "440"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
-      "cur": "USD",
-      "event": "U.S. Baker Hughes Total Rig Count",
-      "period": "",
-      "date": "2026-07-03",
-      "time": "01:00",
-      "previous_raw": "",
-      "prior_actual": "573",
-      "previous_effective": "573"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::Fed Governor Warsh Speaks::none",
       "cur": "USD",
       "event": "Fed Governor Warsh Speaks",
@@ -777,18 +753,6 @@
     },
     {
       "issue": "previous_missing_filled",
-      "event_id": "USD::3-Month Bill Auction::none",
-      "cur": "USD",
-      "event": "3-Month Bill Auction",
-      "period": "",
-      "date": "2026-07-06",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.740%",
-      "previous_effective": "3.740%"
-    },
-    {
-      "issue": "previous_missing_filled",
       "event_id": "USD::4-Week Bill Auction::none",
       "cur": "USD",
       "event": "4-Week Bill Auction",
@@ -798,18 +762,6 @@
       "previous_raw": "",
       "prior_actual": "3.610%",
       "previous_effective": "3.610%"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "USD::6-Month Bill Auction::none",
-      "cur": "USD",
-      "event": "6-Month Bill Auction",
-      "period": "",
-      "date": "2026-07-06",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "3.840%",
-      "previous_effective": "3.840%"
     },
     {
       "issue": "previous_missing_filled",
@@ -843,7 +795,7 @@
       "period": "q1",
       "date": "2026-06-28",
       "time": "22:00",
-      "cutoff": "29-06-2026 01:27"
+      "cutoff": "29-06-2026 16:20"
     },
     {
       "issue": "stale_missing_actual_dropped",
@@ -853,7 +805,19 @@
       "period": "q1",
       "date": "2026-06-28",
       "time": "22:00",
-      "cutoff": "29-06-2026 01:27"
+      "cutoff": "29-06-2026 16:20"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "INR::FX Reserves, USD::none",
+      "cur": "INR",
+      "event": "FX Reserves, USD",
+      "period": "",
+      "date": "2026-07-10",
+      "time": "19:30",
+      "previous_raw": "",
+      "prior_actual": "672.59B",
+      "previous_effective": "672.59B"
     }
   ]
 }
