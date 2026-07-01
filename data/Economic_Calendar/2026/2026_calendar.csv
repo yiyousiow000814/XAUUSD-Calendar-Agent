@@ -10001,6 +10001,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-03,Wednesday,09:30,AUD,Low,GDP Capital Expenditure  (Q1),3.0%,,0.8%
 2026-06-03,Wednesday,09:30,AUD,Low,GDP Chain Price Index  (Q1),0.8%,,1.4%
 2026-06-03,Wednesday,09:30,AUD,Low,GDP Final Consumption  (Q1),0.3%,,0.6%
+2026-06-03,Wednesday,09:30,AUD,Low,Housing Credit  (Apr),0.6%,,0.7%
+2026-06-03,Wednesday,09:30,AUD,Low,Private Sector Credit (MoM)  (Apr),0.7%,0.6%,0.7%
 2026-06-03,Wednesday,09:30,AUD,Medium,GDP (QoQ)  (Q1),0.3%,0.5%,0.9%
 2026-06-03,Wednesday,09:30,AUD,Medium,GDP (YoY)  (Q1),2.5%,2.7%,2.5%
 2026-06-03,Wednesday,09:45,CNY,Medium,RatingDog Services PMI  (May),54.4,52.3,52.6
@@ -10227,6 +10229,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-05,Friday,16:00,TWD,Low,CPI (MoM)  (May),0.26%,,0.46%
 2026-06-05,Friday,16:00,TWD,Low,CPI (YoY)  (May),2.20%,,1.74%
 2026-06-05,Friday,16:00,TWD,Low,CPI NSA (MoM)  (May),0.19%,,0.78%
+2026-06-05,Friday,16:00,TWD,Low,Wholesale Prices (MoM)  (May),14.11%,,8.54%
 2026-06-05,Friday,16:00,UAH,Low,Foreign Reserves (USD)  (May),45.70B,,48.20B
 2026-06-05,Friday,16:20,TWD,Low,FX Reserves USD  (May),605.07B,,602.49B
 2026-06-05,Friday,16:30,GBP,Medium,Mortgage Rate (GBP)  (May),6.60%,,6.60%
@@ -11060,7 +11063,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-18,Thursday,23:30,USD,Low,8-Week Bill Auction,3.640%,,3.610%
 2026-06-18,Thursday,23:40,MWK,Low,CPI (YoY)  (May),23.4%,,24.3%
 2026-06-19,Friday,All Day,,Holiday,China - Dragon Boat Festival,,,
-2026-06-19,Friday,All Day,,Holiday,Denmark - Midsummer Day,,,
 2026-06-19,Friday,All Day,,Holiday,Finland - Midsummer Day,,,
 2026-06-19,Friday,All Day,,Holiday,Hong Kong - Tuen Ng Day,,,
 2026-06-19,Friday,All Day,,Holiday,Sweden - Midsummer Day,,,
@@ -11728,7 +11730,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-06-30,Tuesday,22:00,USD,High,JOLTS Job Openings  (May),7.594M,7.280M,7.585M
 2026-06-30,Tuesday,22:30,USD,Low,Dallas Fed Services Revenues  (Jun),9.8,,5.0
 2026-06-30,Tuesday,22:30,USD,Low,Texas Services Sector Outlook  (Jun),2.9,,-7.7
-2026-06-30,Tuesday,23:00,COP,Low,Unemployment Rate  (May),8.0%,,8.8%
+2026-06-30,Tuesday,23:00,COP,Low,Unemployment Rate  (May),8.0%,8.9%,8.8%
 2026-06-30,Tuesday,23:00,COP,Low,Urban Unemployment Rate  (May),8.5%,,8.8%
 2026-07-01,Wednesday,All Day,,Holiday,Canada - Canada Day,,,
 2026-07-01,Wednesday,All Day,,Holiday,Egypt - Revolution Day,,,

@@ -110026,6 +110026,28 @@
         "Day":"Wednesday",
         "Time":"09:30",
         "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Housing Credit  (Apr)",
+        "Actual":"0.6%",
+        "Forecast":null,
+        "Previous":"0.7%"
+    },
+    {
+        "Date":"2026-06-03",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
+        "Imp.":"Low",
+        "Event":"Private Sector Credit (MoM)  (Apr)",
+        "Actual":"0.7%",
+        "Forecast":"0.6%",
+        "Previous":"0.7%"
+    },
+    {
+        "Date":"2026-06-03",
+        "Day":"Wednesday",
+        "Time":"09:30",
+        "Cur.":"AUD",
         "Imp.":"Medium",
         "Event":"GDP (QoQ)  (Q1)",
         "Actual":"0.3%",
@@ -112506,6 +112528,17 @@
         "Actual":"0.19%",
         "Forecast":null,
         "Previous":"0.78%"
+    },
+    {
+        "Date":"2026-06-05",
+        "Day":"Friday",
+        "Time":"16:00",
+        "Cur.":"TWD",
+        "Imp.":"Low",
+        "Event":"Wholesale Prices (MoM)  (May)",
+        "Actual":"14.11%",
+        "Forecast":null,
+        "Previous":"8.54%"
     },
     {
         "Date":"2026-06-05",
@@ -121676,17 +121709,6 @@
         "Time":"All Day",
         "Cur.":"",
         "Imp.":"Holiday",
-        "Event":"Denmark - Midsummer Day",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":""
-    },
-    {
-        "Date":"2026-06-19",
-        "Day":"Friday",
-        "Time":"All Day",
-        "Cur.":"",
-        "Imp.":"Holiday",
         "Event":"Finland - Midsummer Day",
         "Actual":"",
         "Forecast":null,
@@ -129026,7 +129048,7 @@
         "Imp.":"Low",
         "Event":"Unemployment Rate  (May)",
         "Actual":"8.0%",
-        "Forecast":null,
+        "Forecast":"8.9%",
         "Previous":"8.8%"
     },
     {
