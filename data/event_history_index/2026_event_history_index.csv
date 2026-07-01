@@ -10863,7 +10863,6 @@ USD::Natural Gas Storage::none,2026-06-18,22:30,,73B,82B,108B
 USD::4-Week Bill Auction::none,2026-06-18,23:30,,3.580%,,3.595%
 USD::8-Week Bill Auction::none,2026-06-18,23:30,,3.640%,,3.610%
 NA::China - Dragon Boat Festival::none,2026-06-19,All Day,,,,
-NA::Denmark - Midsummer Day::none,2026-06-19,All Day,,,,
 NA::Finland - Midsummer Day::none,2026-06-19,All Day,,,,
 NA::Hong Kong - Tuen Ng Day::none,2026-06-19,All Day,,,,
 NA::Sweden - Midsummer Day::none,2026-06-19,All Day,,,,
@@ -11554,7 +11553,7 @@ USD::JOLTS Job Openings::none,2026-06-30,22:00,may,7.594M,7.280M,7.585M
 USD::CB Consumer Confidence::none,2026-06-30,22:00,jun,91.2,94.4,90.6
 USD::Dallas Fed Services Revenues::none,2026-06-30,22:30,jun,9.8,,5.0
 USD::Texas Services Sector Outlook::none,2026-06-30,22:30,jun,2.9,,-7.7
-COP::Unemployment Rate::none,2026-06-30,23:00,may,8.0%,,8.8%
+COP::Unemployment Rate::none,2026-06-30,23:00,may,8.0%,8.9%,8.8%
 COP::Urban Unemployment Rate::none,2026-06-30,23:00,may,8.5%,,8.8%
 NA::Canada - Canada Day::none,2026-07-01,All Day,,,,
 NA::Hong Kong - Hong Kong Special Administrative Region Establishment Day::none,2026-07-01,All Day,,,,
@@ -12040,8 +12039,6 @@ CAD::Ivey PMI n.s.a::none,2026-07-07,22:00,jun,,,61.3
 CAD::Ivey PMI::none,2026-07-07,22:00,jun,,,58.2
 TRY::Treasury Cash Balance::none,2026-07-07,22:30,jun,,,-252.278B
 USD::Atlanta Fed GDPNow::none,2026-07-07,23:30,q2,,,2.5%
-KWD::Exports::none,2026-06-28,22:00,q1,,,5.250B
-KWD::Imports::none,2026-06-28,22:00,q1,,,3.530B
 EUR::ECB's Elderson Speaks::none,2026-06-30,16:40,,,,
 EUR::ECB's Schnabel Speaks::none,2026-06-30,17:40,,,,
 EUR::ECB's Lane Speaks::none,2026-07-01,18:15,,,,
@@ -12203,3 +12200,6 @@ USD::Jobless Claims 4-Week Avg.::none,2026-07-09,20:30,,,,224.25K
 USD::Natural Gas Storage::none,2026-07-09,22:30,,,,76B
 USD::4-Week Bill Auction::none,2026-07-09,23:30,,,,3.610%
 USD::8-Week Bill Auction::none,2026-07-09,23:30,,,,3.660%
+AUD::Housing Credit::none,2026-06-03,09:30,apr,0.6%,,0.7%
+AUD::Private Sector Credit::m/m,2026-06-03,09:30,apr,0.7%,0.6%,0.7%
+TWD::Wholesale Prices::m/m,2026-06-05,16:00,may,14.11%,,8.54%
