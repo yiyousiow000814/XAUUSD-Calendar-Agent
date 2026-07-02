@@ -1,5 +1,5 @@
 {
-  "generated_at": "01-07-2026 16:21",
+  "generated_at": "02-07-2026 16:16",
   "patches": [
     {
       "patch": "previous_missing_filled",
@@ -118,20 +118,8 @@
       "date": "2026-07-07",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "2.5%",
-      "previous_effective": "2.5%"
-    },
-    {
-      "patch": "previous_missing_filled",
-      "event_id": "USD::Atlanta Fed GDPNow::none",
-      "cur": "USD",
-      "event": "Atlanta Fed GDPNow  (Q2)",
-      "period": "q2",
-      "date": "2026-07-08",
-      "time": "23:30",
-      "previous_raw": "",
-      "prior_actual": "2.5%",
-      "previous_effective": "2.5%"
+      "prior_actual": "1.2%",
+      "previous_effective": "1.2%"
     },
     {
       "patch": "previous_missing_filled",
@@ -154,8 +142,8 @@
       "date": "2026-07-09",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "224.25K",
-      "previous_effective": "224.25K"
+      "prior_actual": "222.00K",
+      "previous_effective": "222.00K"
     },
     {
       "patch": "previous_missing_filled",
@@ -166,8 +154,8 @@
       "date": "2026-07-09",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "76B",
-      "previous_effective": "76B"
+      "prior_actual": "87B",
+      "previous_effective": "87B"
     },
     {
       "patch": "previous_missing_filled",
@@ -178,8 +166,8 @@
       "date": "2026-07-09",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,821K",
-      "previous_effective": "1,821K"
+      "prior_actual": "1,814K",
+      "previous_effective": "1,814K"
     },
     {
       "patch": "previous_missing_filled",
@@ -190,8 +178,8 @@
       "date": "2026-07-09",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.610%",
-      "previous_effective": "3.610%"
+      "prior_actual": "3.605%",
+      "previous_effective": "3.605%"
     },
     {
       "patch": "previous_missing_filled",
@@ -202,8 +190,8 @@
       "date": "2026-07-09",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.660%",
-      "previous_effective": "3.660%"
+      "prior_actual": "3.650%",
+      "previous_effective": "3.650%"
     },
     {
       "patch": "previous_missing_filled",
@@ -214,8 +202,8 @@
       "date": "2026-07-09",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "59.51B",
-      "previous_effective": "59.51B"
+      "prior_actual": "54.25B",
+      "previous_effective": "54.25B"
     },
     {
       "patch": "previous_missing_filled",
@@ -228,6 +216,30 @@
       "previous_raw": "",
       "prior_actual": "672.59B",
       "previous_effective": "672.59B"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Oil Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Oil Rig Count",
+      "period": "",
+      "date": "2026-07-11",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "440",
+      "previous_effective": "440"
+    },
+    {
+      "patch": "previous_missing_filled",
+      "event_id": "USD::U.S. Baker Hughes Total Rig Count::none",
+      "cur": "USD",
+      "event": "U.S. Baker Hughes Total Rig Count",
+      "period": "",
+      "date": "2026-07-11",
+      "time": "01:00",
+      "previous_raw": "",
+      "prior_actual": "573",
+      "previous_effective": "573"
     }
   ]
 }
