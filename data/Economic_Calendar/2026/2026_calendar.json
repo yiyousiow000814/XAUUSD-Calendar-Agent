@@ -131233,17 +131233,6 @@
         "Date":"2026-07-02",
         "Day":"Thursday",
         "Time":"23:30",
-        "Cur.":"EGP",
-        "Imp.":"Low",
-        "Event":"M2 Money Supply (YoY)  (May)",
-        "Actual":"19.60%",
-        "Forecast":null,
-        "Previous":"19.30%"
-    },
-    {
-        "Date":"2026-07-02",
-        "Day":"Thursday",
-        "Time":"23:30",
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"4-Week Bill Auction",
@@ -132024,244 +132013,145 @@
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"00:30",
-        "Cur.":"EUR",
-        "Imp.":"Low",
-        "Event":"Irish Exchequer Returns  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-2.300B"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"AUD",
-        "Imp.":"Medium",
-        "Event":"CFTC AUD speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-13.0K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"BRL",
-        "Imp.":"Medium",
-        "Event":"CFTC BRL speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"43.7K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"CAD",
         "Imp.":"Low",
-        "Event":"CFTC CAD speculative net positions",
-        "Actual":"",
+        "Event":"Trade Balance  (Jun)",
+        "Actual":"9.76B",
         "Forecast":null,
-        "Previous":"-146.8K"
+        "Previous":"7.82B"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"CHF",
-        "Imp.":"Low",
-        "Event":"CFTC CHF speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-41.1K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"EUR",
-        "Imp.":"Medium",
-        "Event":"CFTC EUR speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"30.2K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"GBP",
-        "Imp.":"Medium",
-        "Event":"CFTC GBP speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-105.7K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"JPY",
-        "Imp.":"Medium",
-        "Event":"CFTC JPY speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-146.1K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"MXN",
-        "Imp.":"Low",
-        "Event":"CFTC MXN speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"74.2K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"NZD",
-        "Imp.":"Low",
-        "Event":"CFTC NZD speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-54.8K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"CFTC Aluminium speculative net positions",
-        "Actual":"",
+        "Event":"OPEC Crude Oil Production Algeria (Barrel)",
+        "Actual":"0.99M",
         "Forecast":null,
-        "Previous":"0.8K"
+        "Previous":"0.97M"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"CFTC Copper speculative net positions",
-        "Actual":"",
+        "Event":"OPEC Crude Oil Production Congo (Barrel)",
+        "Actual":"0.27M",
         "Forecast":null,
-        "Previous":"71.6K"
+        "Previous":"0.27M"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"CFTC Corn speculative net positions",
-        "Actual":"",
+        "Event":"OPEC Crude Oil Production Gabon (Barrel)",
+        "Actual":"0.22M",
         "Forecast":null,
-        "Previous":"58.3K"
+        "Previous":"0.22M"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"CFTC Natural Gas speculative net positions",
-        "Actual":"",
+        "Event":"OPEC Crude Oil Production Guinea (Barrel)",
+        "Actual":"0.05M",
         "Forecast":null,
-        "Previous":"-176.7K"
+        "Previous":"0.05M"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"CFTC Silver speculative net positions",
-        "Actual":"",
+        "Event":"OPEC Crude Oil Production Kuwait (Barrel)",
+        "Actual":"1.65M",
         "Forecast":null,
-        "Previous":"23.8K"
+        "Previous":"0.56M"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"CFTC Soybeans speculative net positions",
-        "Actual":"",
+        "Event":"OPEC Crude Oil Production Libya (Barrel)",
+        "Actual":"1.30M",
         "Forecast":null,
-        "Previous":"100.8K"
+        "Previous":"1.25M"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
         "Imp.":"Low",
-        "Event":"CFTC Wheat speculative net positions",
-        "Actual":"",
+        "Event":"OPEC Crude Oil Production Nigeria (Barrel)",
+        "Actual":"1.65M",
         "Forecast":null,
-        "Previous":"-48.4K"
+        "Previous":"1.55M"
     },
     {
         "Date":"2026-07-04",
         "Day":"Saturday",
-        "Time":"03:30",
+        "Time":"02:00",
         "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"CFTC Crude Oil speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"114.6K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"CFTC Gold speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"181.3K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"CFTC Nasdaq 100 speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-9.1K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"03:30",
-        "Cur.":"USD",
-        "Imp.":"Medium",
-        "Event":"CFTC S&P 500 speculative net positions",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"-35.4K"
-    },
-    {
-        "Date":"2026-07-04",
-        "Day":"Saturday",
-        "Time":"05:00",
-        "Cur.":"KRW",
         "Imp.":"Low",
-        "Event":"FX Reserves - USD  (Jun)",
-        "Actual":"",
+        "Event":"OPEC Crude oil Production Iran (Barrel)",
+        "Actual":"3.00M",
         "Forecast":null,
-        "Previous":"426.99B"
+        "Previous":"2.00M"
+    },
+    {
+        "Date":"2026-07-04",
+        "Day":"Saturday",
+        "Time":"02:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"OPEC Crude oil Production Iraq (Barrel)",
+        "Actual":"2.00M",
+        "Forecast":null,
+        "Previous":"1.56M"
+    },
+    {
+        "Date":"2026-07-04",
+        "Day":"Saturday",
+        "Time":"02:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"OPEC Crude oil Production Saudi Arabia (Barrel)",
+        "Actual":"7.20M",
+        "Forecast":null,
+        "Previous":"6.50M"
+    },
+    {
+        "Date":"2026-07-04",
+        "Day":"Saturday",
+        "Time":"02:00",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"OPEC Crude oil Production Venezuela (Barrel)",
+        "Actual":"1.10M",
+        "Forecast":null,
+        "Previous":"1.13M"
+    },
+    {
+        "Date":"2026-07-04",
+        "Day":"Saturday",
+        "Time":"20:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"M2 Money Supply (YoY)  (May)",
+        "Actual":"19.60%",
+        "Forecast":null,
+        "Previous":"19.30%"
     },
     {
         "Date":"2026-07-05",
@@ -132767,7 +132657,7 @@
         "Event":"S&P Global Services PMI  (Jun)",
         "Actual":"",
         "Forecast":"51.3",
-        "Previous":"50.7"
+        "Previous":"51.3"
     },
     {
         "Date":"2026-07-06",
@@ -132778,7 +132668,7 @@
         "Event":"S&P Global Composite PMI  (Jun)",
         "Actual":"",
         "Forecast":"52.2",
-        "Previous":"51.5"
+        "Previous":"52.2"
     },
     {
         "Date":"2026-07-06",
@@ -133163,7 +133053,7 @@
         "Event":"Overall wage income of employees  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"3.5%"
+        "Previous":"3.6%"
     },
     {
         "Date":"2026-07-07",
@@ -133174,7 +133064,7 @@
         "Event":"Overtime Pay (YoY)  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"4.20%"
+        "Previous":"4.80%"
     },
     {
         "Date":"2026-07-07",
@@ -133526,7 +133416,7 @@
         "Event":"Foreign Reserves (USD)  (Jun)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"710.8B"
+        "Previous":"710,818.0B"
     },
     {
         "Date":"2026-07-07",
@@ -133807,6 +133697,28 @@
         "Date":"2026-07-07",
         "Day":"Tuesday",
         "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"Auto Production (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"6.3%"
+    },
+    {
+        "Date":"2026-07-07",
+        "Day":"Tuesday",
+        "Time":"20:00",
+        "Cur.":"BRL",
+        "Imp.":"Low",
+        "Event":"Auto Sales (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"10.6%"
+    },
+    {
+        "Date":"2026-07-07",
+        "Day":"Tuesday",
+        "Time":"20:00",
         "Cur.":"NZD",
         "Imp.":"Low",
         "Event":"GlobalDairyTrade Price Index",
@@ -133983,28 +133895,6 @@
         "Date":"2026-07-07",
         "Day":"Tuesday",
         "Time":"22:00",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"Auto Production (MoM)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"6.3%"
-    },
-    {
-        "Date":"2026-07-07",
-        "Day":"Tuesday",
-        "Time":"22:00",
-        "Cur.":"BRL",
-        "Imp.":"Low",
-        "Event":"Auto Sales (MoM)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"10.6%"
-    },
-    {
-        "Date":"2026-07-07",
-        "Day":"Tuesday",
-        "Time":"22:00",
         "Cur.":"CAD",
         "Imp.":"Low",
         "Event":"Ivey PMI n.s.a  (Jun)",
@@ -134079,6 +133969,17 @@
         "Previous":""
     },
     {
+        "Date":"2026-07-07",
+        "Day":"Tuesday",
+        "Time":"23:35",
+        "Cur.":"UAH",
+        "Imp.":"Low",
+        "Event":"Foreign Reserves (USD)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"45.70B"
+    },
+    {
         "Date":"2026-07-08",
         "Day":"Wednesday",
         "Time":"00:00",
@@ -134088,17 +133989,6 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
-    },
-    {
-        "Date":"2026-07-08",
-        "Day":"Wednesday",
-        "Time":"00:05",
-        "Cur.":"UAH",
-        "Imp.":"Low",
-        "Event":"Foreign Reserves (USD)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"45.70B"
     },
     {
         "Date":"2026-07-08",
@@ -134186,7 +134076,7 @@
         "Event":"Adjusted Current Account  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"4.21T"
+        "Previous":"421.11T"
     },
     {
         "Date":"2026-07-08",
@@ -134659,7 +134549,7 @@
         "Event":"Wholesale Inventories (MoM)  (May)",
         "Actual":"",
         "Forecast":"0.3%",
-        "Previous":"0.6%"
+        "Previous":"0.3%"
     },
     {
         "Date":"2026-07-08",
@@ -134860,6 +134750,17 @@
         "Previous":"1.2%"
     },
     {
+        "Date":"2026-07-08",
+        "Day":"Wednesday",
+        "Time":"23:35",
+        "Cur.":"PLN",
+        "Imp.":"Medium",
+        "Event":"Interest Rate Decision  (Jul)",
+        "Actual":"",
+        "Forecast":"3.75%",
+        "Previous":"3.75%"
+    },
+    {
         "Date":"2026-07-09",
         "Day":"Thursday",
         "Time":"All Day",
@@ -134869,17 +134770,6 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
-    },
-    {
-        "Date":"2026-07-09",
-        "Day":"Thursday",
-        "Time":"00:05",
-        "Cur.":"PLN",
-        "Imp.":"Medium",
-        "Event":"Interest Rate Decision  (Jul)",
-        "Actual":"",
-        "Forecast":"3.75%",
-        "Previous":"3.75%"
     },
     {
         "Date":"2026-07-09",
@@ -135198,7 +135088,7 @@
         "Event":"GDP (YoY)  (Q1)",
         "Actual":"",
         "Forecast":"-1.2%",
-        "Previous":"0.2%"
+        "Previous":"-1.2%"
     },
     {
         "Date":"2026-07-09",
@@ -135817,6 +135707,28 @@
         "Previous":"3.650%"
     },
     {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"23:35",
+        "Cur.":"UAH",
+        "Imp.":"Low",
+        "Event":"CPI (MoM)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"0.9%"
+    },
+    {
+        "Date":"2026-07-09",
+        "Day":"Thursday",
+        "Time":"23:35",
+        "Cur.":"UAH",
+        "Imp.":"Low",
+        "Event":"CPI (YoY)  (Jun)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"8.2%"
+    },
+    {
         "Date":"2026-07-10",
         "Day":"Friday",
         "Time":"All Day",
@@ -135848,28 +135760,6 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"20.00%"
-    },
-    {
-        "Date":"2026-07-10",
-        "Day":"Friday",
-        "Time":"00:05",
-        "Cur.":"UAH",
-        "Imp.":"Low",
-        "Event":"CPI (MoM)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"0.9%"
-    },
-    {
-        "Date":"2026-07-10",
-        "Day":"Friday",
-        "Time":"00:05",
-        "Cur.":"UAH",
-        "Imp.":"Low",
-        "Event":"CPI (YoY)  (Jun)",
-        "Actual":"",
-        "Forecast":null,
-        "Previous":"8.2%"
     },
     {
         "Date":"2026-07-10",
@@ -136100,7 +135990,7 @@
         "Event":"German HICP (YoY)  (Jun)",
         "Actual":"",
         "Forecast":"2.4%",
-        "Previous":"2.7%"
+        "Previous":"2.4%"
     },
     {
         "Date":"2026-07-10",
@@ -136144,7 +136034,7 @@
         "Event":"German CPI (YoY)  (Jun)",
         "Actual":"",
         "Forecast":"2.3%",
-        "Previous":"2.6%"
+        "Previous":"2.3%"
     },
     {
         "Date":"2026-07-10",
@@ -136353,7 +136243,7 @@
         "Event":"Industrial Production (MoM)  (May)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"3.70%"
+        "Previous":"7.50%"
     },
     {
         "Date":"2026-07-10",
@@ -136463,7 +136353,7 @@
         "Event":"Portuguese CPI (MoM)  (Jun)",
         "Actual":"",
         "Forecast":"0.1%",
-        "Previous":"0.2%"
+        "Previous":"0.1%"
     },
     {
         "Date":"2026-07-10",
@@ -136474,7 +136364,7 @@
         "Event":"Portuguese CPI (YoY)  (Jun)",
         "Actual":"",
         "Forecast":"3.2%",
-        "Previous":"3.3%"
+        "Previous":"3.2%"
     },
     {
         "Date":"2026-07-10",
