@@ -1,5 +1,5 @@
 {
-  "generated_at": "03-07-2026 16:06",
+  "generated_at": "04-07-2026 15:52",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -722,6 +722,16 @@
       "previous_raw": "",
       "prior_actual": "666.93B",
       "previous_effective": "666.93B"
+    },
+    {
+      "issue": "stale_missing_actual_dropped",
+      "event_id": "USD::Fed Governor Warsh Speaks::none",
+      "cur": "USD",
+      "event": "Fed Governor Warsh Speaks",
+      "period": "",
+      "date": "2026-07-01",
+      "time": "21:00",
+      "cutoff": "02-07-2026 15:52"
     }
   ]
 }
