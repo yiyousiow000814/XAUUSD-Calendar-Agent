@@ -68,5 +68,4 @@ previous_missing_filled,USD::Fed Governor Warsh Speaks::none,USD,Fed Governor Wa
 previous_missing_filled,USD::Atlanta Fed GDPNow::none,USD,Atlanta Fed GDPNow  (Q2),q2,2026-07-07,23:30,,1.2%,1.2%,
 stale_missing_actual_dropped,KWD::Exports::none,KWD,Exports  (Q1),q1,2026-06-28,22:00,,,,"{""cutoff"": ""30-06-2026 16:15""}"
 stale_missing_actual_dropped,KWD::Imports::none,KWD,Imports  (Q1),q1,2026-06-28,22:00,,,,"{""cutoff"": ""30-06-2026 16:15""}"
-previous_missing_filled,"INR::FX Reserves, USD::none",INR,"FX Reserves, USD",,2026-07-10,19:30,,666.93B,666.93B,
 stale_missing_actual_dropped,USD::Fed Governor Warsh Speaks::none,USD,Fed Governor Warsh Speaks,,2026-07-01,21:00,,,,"{""cutoff"": ""03-07-2026 15:55""}"
