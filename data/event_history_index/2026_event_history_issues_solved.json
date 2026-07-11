@@ -1,5 +1,5 @@
 {
-  "generated_at": "10-07-2026 16:20",
+  "generated_at": "11-07-2026 15:50",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -754,8 +754,8 @@
       "date": "2026-07-18",
       "time": "01:00",
       "previous_raw": "",
-      "prior_actual": "580",
-      "previous_effective": "580"
+      "prior_actual": "581",
+      "previous_effective": "581"
     },
     {
       "issue": "previous_missing_filled",
