@@ -136930,13 +136930,13 @@
     {
         "Date":"2026-07-12",
         "Day":"Sunday",
-        "Time":"18:30",
-        "Cur.":"INR",
-        "Imp.":"Medium",
+        "Time":"23:00",
+        "Cur.":"OMR",
+        "Imp.":"Low",
         "Event":"CPI (YoY)  (Jun)",
         "Actual":"",
         "Forecast":null,
-        "Previous":"3.93%"
+        "Previous":"3.8%"
     },
     {
         "Date":"2026-07-13",
@@ -136948,6 +136948,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":""
+    },
+    {
+        "Date":"2026-07-13",
+        "Day":"Monday",
+        "Time":"03:00",
+        "Cur.":"EGP",
+        "Imp.":"Low",
+        "Event":"Current Account (USD)  (Q1)",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":"-10M"
     },
     {
         "Date":"2026-07-13",
@@ -137056,7 +137067,7 @@
         "Imp.":"Low",
         "Event":"Current Account (USD)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.96B",
         "Previous":"-5.70B"
     },
     {
@@ -137337,6 +137348,17 @@
     {
         "Date":"2026-07-14",
         "Day":"Tuesday",
+        "Time":"00:45",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB's Schnabel Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-14",
+        "Day":"Tuesday",
         "Time":"02:00",
         "Cur.":"GBP",
         "Imp.":"Medium",
@@ -137353,8 +137375,19 @@
         "Imp.":"Medium",
         "Event":"Federal Budget Balance  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-132.8B",
         "Previous":"-293.0B"
+    },
+    {
+        "Date":"2026-07-14",
+        "Day":"Tuesday",
+        "Time":"05:00",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB President Lagarde Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-07-14",
@@ -137408,7 +137441,7 @@
         "Imp.":"Medium",
         "Event":"BRC Retail Sales Monitor (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"2.9%",
         "Previous":"3.4%"
     },
     {
@@ -137518,7 +137551,7 @@
         "Imp.":"Low",
         "Event":"German WPI (MoM)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.2%",
         "Previous":"-0.6%"
     },
     {
@@ -137639,7 +137672,7 @@
         "Imp.":"Low",
         "Event":"Trade Balance  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"820.00B",
         "Previous":"723.98B"
     },
     {
@@ -137650,7 +137683,7 @@
         "Imp.":"Medium",
         "Event":"Exports (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"18.2%",
         "Previous":"19.4%"
     },
     {
@@ -137661,7 +137694,7 @@
         "Imp.":"Medium",
         "Event":"Imports (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"24.0%",
         "Previous":"27.4%"
     },
     {
@@ -137672,7 +137705,7 @@
         "Imp.":"Medium",
         "Event":"Trade Balance (USD)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"121.40B",
         "Previous":"105.43B"
     },
     {
@@ -137716,7 +137749,7 @@
         "Imp.":"Medium",
         "Event":"New Loans  (Jun)",
         "Actual":"",
-        "Forecast":"2,000.0B",
+        "Forecast":"1,950.0B",
         "Previous":"520.0B"
     },
     {
@@ -137727,7 +137760,7 @@
         "Imp.":"Low",
         "Event":"Current Account  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-25.000B",
         "Previous":"1.180B"
     },
     {
@@ -137740,6 +137773,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"2.239%"
+    },
+    {
+        "Date":"2026-07-14",
+        "Day":"Tuesday",
+        "Time":"16:45",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"BoE Gov Bailey Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-07-14",
@@ -137782,7 +137826,7 @@
         "Imp.":"Low",
         "Event":"NFIB Small Business Optimism  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"95.6",
         "Previous":"95.3"
     },
     {
@@ -137916,6 +137960,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"11.5%"
+    },
+    {
+        "Date":"2026-07-14",
+        "Day":"Tuesday",
+        "Time":"21:00",
+        "Cur.":"EUR",
+        "Imp.":"Medium",
+        "Event":"ECB President Lagarde Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-07-14",
@@ -138101,7 +138156,7 @@
         "Imp.":"Medium",
         "Event":"TIC Net Long-Term Transactions  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"128.5B",
         "Previous":"103.1B"
     },
     {
@@ -138189,7 +138244,7 @@
         "Imp.":"Low",
         "Event":"Core Machinery Orders (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-4.2%",
         "Previous":"8.7%"
     },
     {
@@ -138200,7 +138255,7 @@
         "Imp.":"Low",
         "Event":"Core Machinery Orders (YoY)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"12.9%",
         "Previous":"15.6%"
     },
     {
@@ -138288,7 +138343,7 @@
         "Imp.":"Medium",
         "Event":"Chinese GDP YTD  (YoY)  (Q2)",
         "Actual":"",
-        "Forecast":"4.4%",
+        "Forecast":"4.5%",
         "Previous":"5.0%"
     },
     {
@@ -138310,7 +138365,7 @@
         "Imp.":"Medium",
         "Event":"Chinese Unemployment Rate  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"5.1%",
         "Previous":"5.1%"
     },
     {
@@ -138343,7 +138398,7 @@
         "Imp.":"Medium",
         "Event":"Industrial Production (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":"4.7%",
+        "Forecast":"4.6%",
         "Previous":"4.5%"
     },
     {
@@ -138673,7 +138728,7 @@
         "Imp.":"Medium",
         "Event":"Industrial Production (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.3%",
         "Previous":"0.1%"
     },
     {
@@ -138774,6 +138829,17 @@
         "Actual":"",
         "Forecast":null,
         "Previous":"3.8%"
+    },
+    {
+        "Date":"2026-07-15",
+        "Day":"Wednesday",
+        "Time":"18:30",
+        "Cur.":"GBP",
+        "Imp.":"Medium",
+        "Event":"BoE MPC Member Pill Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
     },
     {
         "Date":"2026-07-15",
@@ -138937,7 +139003,7 @@
         "Imp.":"High",
         "Event":"PPI (MoM)  (Jun)",
         "Actual":"",
-        "Forecast":"0.2%",
+        "Forecast":"0.0%",
         "Previous":"1.1%"
     },
     {
@@ -138992,7 +139058,7 @@
         "Imp.":"Medium",
         "Event":"Core PPI (MoM)  (Jun)",
         "Actual":"",
-        "Forecast":"0.4%",
+        "Forecast":"0.3%",
         "Previous":"0.4%"
     },
     {
@@ -139003,7 +139069,7 @@
         "Imp.":"Medium",
         "Event":"NY Empire State Manufacturing Index  (Jul)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"8.70",
         "Previous":"5.70"
     },
     {
@@ -139025,7 +139091,7 @@
         "Imp.":"High",
         "Event":"BoC Interest Rate Decision",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"2.25%",
         "Previous":"2.25%"
     },
     {
@@ -139399,7 +139465,7 @@
         "Imp.":"High",
         "Event":"GDP (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.1%",
         "Previous":"-0.1%"
     },
     {
@@ -139410,7 +139476,7 @@
         "Imp.":"Low",
         "Event":"Construction Output (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.3%",
         "Previous":"0.1%"
     },
     {
@@ -139432,7 +139498,7 @@
         "Imp.":"Low",
         "Event":"Index of Services",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.6%",
         "Previous":"0.8%"
     },
     {
@@ -139476,7 +139542,7 @@
         "Imp.":"Medium",
         "Event":"Industrial Production (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.1%",
         "Previous":"0.0%"
     },
     {
@@ -139487,7 +139553,7 @@
         "Imp.":"Medium",
         "Event":"Manufacturing Production (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.2%",
         "Previous":"0.4%"
     },
     {
@@ -139498,7 +139564,7 @@
         "Imp.":"Medium",
         "Event":"Monthly GDP 3M\/3M Change  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.6%",
         "Previous":"0.7%"
     },
     {
@@ -139509,7 +139575,7 @@
         "Imp.":"Medium",
         "Event":"Trade Balance  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-22.80B",
         "Previous":"-26.05B"
     },
     {
@@ -139663,7 +139729,7 @@
         "Imp.":"Low",
         "Event":"Italian Trade Balance  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"4.500B",
         "Previous":"4.293B"
     },
     {
@@ -139762,7 +139828,7 @@
         "Imp.":"Low",
         "Event":"Core CPI (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"3.0%",
         "Previous":"3.1%"
     },
     {
@@ -139795,7 +139861,7 @@
         "Imp.":"Medium",
         "Event":"Housing Starts  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"257.0K",
         "Previous":"261.4K"
     },
     {
@@ -139817,7 +139883,7 @@
         "Imp.":"High",
         "Event":"Initial Jobless Claims",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"215K",
         "Previous":"215K"
     },
     {
@@ -139828,7 +139894,7 @@
         "Imp.":"High",
         "Event":"Philadelphia Fed Manufacturing Index  (Jul)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"12.1",
         "Previous":"10.3"
     },
     {
@@ -139971,7 +140037,7 @@
         "Imp.":"Low",
         "Event":"NAHB Housing Market Index  (Jul)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"35",
         "Previous":"35"
     },
     {
@@ -139993,7 +140059,7 @@
         "Imp.":"Medium",
         "Event":"Business Inventories (MoM)  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"0.3%",
         "Previous":"0.5%"
     },
     {
@@ -140004,7 +140070,7 @@
         "Imp.":"Medium",
         "Event":"Pending Home Sales (MoM)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.3%",
         "Previous":"3.8%"
     },
     {
@@ -140069,6 +140135,17 @@
         "Cur.":"USD",
         "Imp.":"Low",
         "Event":"Fed Logan Speaks",
+        "Actual":"",
+        "Forecast":null,
+        "Previous":""
+    },
+    {
+        "Date":"2026-07-17",
+        "Day":"Friday",
+        "Time":"01:25",
+        "Cur.":"USD",
+        "Imp.":"Low",
+        "Event":"Fed Schmid Speaks",
         "Actual":"",
         "Forecast":null,
         "Previous":""
@@ -140191,7 +140268,7 @@
         "Imp.":"Low",
         "Event":"PPI (YoY)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"1.5%",
         "Previous":"1.5%"
     },
     {
@@ -140268,7 +140345,7 @@
         "Imp.":"Low",
         "Event":"Current Account  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"17.1B",
         "Previous":"15.7B"
     },
     {
@@ -140477,7 +140554,7 @@
         "Imp.":"Medium",
         "Event":"Foreign Securities Purchases  (May)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"15.21B",
         "Previous":"46.91B"
     },
     {
@@ -140521,7 +140598,7 @@
         "Imp.":"Medium",
         "Event":"Building Permits  (Jun)",
         "Actual":"",
-        "Forecast":"1.420M",
+        "Forecast":"1.400M",
         "Previous":"1.410M"
     },
     {
@@ -140543,7 +140620,7 @@
         "Imp.":"Medium",
         "Event":"Housing Starts  (Jun)",
         "Actual":"",
-        "Forecast":"1.330M",
+        "Forecast":"1.320M",
         "Previous":"1.177M"
     },
     {
@@ -140565,7 +140642,7 @@
         "Imp.":"Medium",
         "Event":"Import Price Index (MoM)  (Jun)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"-0.4%",
         "Previous":"1.9%"
     },
     {
@@ -140664,7 +140741,7 @@
         "Imp.":"Medium",
         "Event":"Michigan Consumer Sentiment  (Jul)",
         "Actual":"",
-        "Forecast":null,
+        "Forecast":"51.4",
         "Previous":"49.5"
     },
     {
