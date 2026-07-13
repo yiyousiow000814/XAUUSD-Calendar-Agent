@@ -1,5 +1,5 @@
 {
-  "generated_at": "11-07-2026 15:50",
+  "generated_at": "13-07-2026 16:21",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -756,18 +756,6 @@
       "previous_raw": "",
       "prior_actual": "581",
       "previous_effective": "581"
-    },
-    {
-      "issue": "previous_missing_filled",
-      "event_id": "TRY::Gross FX Reserves::none",
-      "cur": "TRY",
-      "event": "Gross FX Reserves",
-      "period": "",
-      "date": "2026-07-17",
-      "time": "19:30",
-      "previous_raw": "",
-      "prior_actual": "61.95B",
-      "previous_effective": "61.95B"
     }
   ]
 }
