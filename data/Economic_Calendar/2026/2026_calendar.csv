@@ -12372,6 +12372,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-10,Friday,14:00,EUR,Medium,German CPI (YoY)  (Jun),2.3%,2.3%,2.6%
 2026-07-10,Friday,14:00,NOK,Low,CPI (MoM)  (Jun),-0.2%,0.3%,0.2%
 2026-07-10,Friday,14:00,NOK,Low,CPI (YoY)  (Jun),2.7%,3.2%,3.1%
+2026-07-10,Friday,14:00,NOK,Low,Core CPI YTD  (Jun),3.4%,3.3%,3.4%
+2026-07-10,Friday,14:00,NOK,Low,Core Inflation (MoM)  (Jun),0.4%,0.5%,0.4%
 2026-07-10,Friday,14:00,RON,Low,Trade Balance (EUR)  (May),-2.616M,,-3.075M
 2026-07-10,Friday,14:45,EUR,Low,France Inflation Ex-Tobacco (YoY)  (Jun),1.70%,,2.40%
 2026-07-10,Friday,14:45,EUR,Low,French CPI (YoY)  (Jun),1.8%,1.8%,2.4%
@@ -12449,56 +12451,61 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-11,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,-42.9K,,-37.6K
 2026-07-12,Sunday,23:00,OMR,Low,CPI (YoY)  (Jun),,,3.8%
 2026-07-13,Monday,All Day,,Holiday,Montenegro - National Day,,,
-2026-07-13,Monday,03:00,EGP,Low,Current Account (USD)  (Q1),,,-10M
-2026-07-13,Monday,06:30,NZD,Low,Performance of Services Index  (Jun),,,47.5
-2026-07-13,Monday,12:30,EUR,Low,Dutch Trade Balance  (May),,,7.96B
-2026-07-13,Monday,13:00,EUR,Low,Finnish Current Account  (May),,,-2.30B
-2026-07-13,Monday,14:00,NOK,Low,Core CPI YTD  (Jun),,3.3%,3.4%
-2026-07-13,Monday,14:00,NOK,Low,Core Inflation (MoM)  (Jun),,0.5%,0.4%
-2026-07-13,Monday,14:00,NOK,Low,Manufacturing Production (MoM)  (May),,0.4%,-0.9%
-2026-07-13,Monday,14:00,NOK,Low,PPI (YoY)  (Jun),,,24.0%
-2026-07-13,Monday,14:00,NOK,Low,Trade Balance  (Jun),,,62.6B
-2026-07-13,Monday,14:00,RON,Low,CPI (YoY)  (Jun),,10.6%,10.9%
-2026-07-13,Monday,15:00,TRY,Low,Current Account (USD)  (May),,-0.96B,-5.70B
-2026-07-13,Monday,15:00,TRY,Medium,Turkish Retail Sales (MoM)  (May),,,-1.7%
-2026-07-13,Monday,15:00,TRY,Medium,Turkish Retail Sales (YoY)  (May),,,11.4%
+2026-07-13,Monday,06:30,NZD,Low,Performance of Services Index  (Jun),50.6,,48.0
+2026-07-13,Monday,12:30,EUR,Low,Dutch Trade Balance  (May),6.66B,,7.74B
+2026-07-13,Monday,13:00,EUR,Low,Finnish Current Account  (May),-0.60B,,-2.30B
+2026-07-13,Monday,14:00,NOK,Low,Manufacturing Production (MoM)  (May),0.7%,0.4%,-0.6%
+2026-07-13,Monday,14:00,RON,Low,CPI (YoY)  (Jun),10.4%,10.6%,10.9%
+2026-07-13,Monday,15:00,TRY,Low,Current Account (USD)  (May),-1.46B,-0.96B,-5.62B
+2026-07-13,Monday,15:00,TRY,Medium,Turkish Retail Sales (MoM)  (May),2.4%,,-1.6%
+2026-07-13,Monday,15:00,TRY,Medium,Turkish Retail Sales (YoY)  (May),13.7%,,11.7%
+2026-07-13,Monday,17:15,INR,Low,Exports (USD)  (Jun),40.41B,,45.20B
+2026-07-13,Monday,17:15,INR,Low,Trade Balance  (Jun),-30.43B,,-28.21B
 2026-07-13,Monday,17:25,USD,Medium,FOMC Member Bowman Speaks,,,
-2026-07-13,Monday,17:30,EUR,Low,German 12-Month Bubill Auction,,,2.478%
-2026-07-13,Monday,17:30,EUR,Low,German 6-Month Bubill Auction,,,2.331%
+2026-07-13,Monday,17:50,EUR,Low,German 12-Month Bubill Auction,2.566%,,2.478%
+2026-07-13,Monday,17:50,EUR,Low,German 6-Month Bubill Auction,2.436%,,2.331%
 2026-07-13,Monday,18:00,EUR,Low,German Buba Monthly Report,,,
-2026-07-13,Monday,18:00,ILS,Low,Exports (USD)  (Jun),,,"6,047.4M"
-2026-07-13,Monday,18:00,ILS,Low,Imports (USD)  (Jun),,,"9,736.6M"
-2026-07-13,Monday,18:00,ILS,Low,Trade Balance  (Jun),,,"-3,689.2M"
-2026-07-13,Monday,18:00,MZN,Low,CPI (YoY)  (Jun),,,7.22%
-2026-07-13,Monday,18:00,RSD,Low,CPI (MoM)  (Jun),,0.60%,0.30%
-2026-07-13,Monday,18:00,RSD,Low,CPI (YoY)  (Jun),,3.60%,3.50%
+2026-07-13,Monday,18:00,ILS,Low,Exports (USD)  (Jun),"5,982.5M",,"5,573.1M"
+2026-07-13,Monday,18:00,ILS,Low,Imports (USD)  (Jun),"10,196.1M",,"9,744.7M"
+2026-07-13,Monday,18:00,ILS,Low,Trade Balance  (Jun),"-4,213.6M",,"-4,171.6M"
+2026-07-13,Monday,18:00,RSD,Low,CPI (MoM)  (Jun),0.20%,0.60%,0.30%
+2026-07-13,Monday,18:00,RSD,Low,CPI (YoY)  (Jun),2.70%,3.60%,3.50%
 2026-07-13,Monday,18:00,USD,Medium,OPEC Meeting,,,
-2026-07-13,Monday,18:30,INR,Medium,CPI (YoY)  (Jun),,4.30%,3.93%
+2026-07-13,Monday,18:30,INR,Medium,CPI (YoY)  (Jun),4.38%,4.30%,3.93%
 2026-07-13,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
-2026-07-13,Monday,20:00,EUR,Low,German Current Account Balance n.s.a  (May),,,13.8B
-2026-07-13,Monday,21:00,EUR,Low,French 12-Month BTF Auction,,,2.548%
-2026-07-13,Monday,21:00,EUR,Low,French 3-Month BTF Auction,,,2.374%
-2026-07-13,Monday,21:00,EUR,Low,French 6-Month BTF Auction,,,2.455%
-2026-07-13,Monday,21:00,RUB,Low,Trade Balance  (May),,,11.43B
-2026-07-13,Monday,23:30,USD,Low,3-Month Bill Auction,,,3.735%
-2026-07-13,Monday,23:30,USD,Low,6-Month Bill Auction,,,3.830%
+2026-07-13,Monday,19:30,INR,Low,Imports (USD)  (Jun),70.84B,,73.41B
+2026-07-13,Monday,20:00,EUR,Low,German Current Account Balance n.s.a  (May),10.4B,,16.6B
+2026-07-13,Monday,21:00,EUR,Low,French 12-Month BTF Auction,2.701%,,2.548%
+2026-07-13,Monday,21:00,EUR,Low,French 3-Month BTF Auction,2.410%,,2.374%
+2026-07-13,Monday,21:00,EUR,Low,French 6-Month BTF Auction,2.540%,,2.455%
+2026-07-13,Monday,21:00,RUB,Low,Trade Balance  (May),14.15B,,11.01B
+2026-07-13,Monday,23:30,USD,Low,3-Month Bill Auction,3.760%,,3.735%
+2026-07-13,Monday,23:30,USD,Low,6-Month Bill Auction,3.860%,,3.830%
 2026-07-14,Tuesday,All Day,,Holiday,Mongolia - Naadam festival,,,
 2026-07-14,Tuesday,All Day,,Holiday,Montenegro - National Day,,,
 2026-07-14,Tuesday,00:30,USD,Medium,Fed Waller Speaks,,,
 2026-07-14,Tuesday,00:45,EUR,Medium,ECB's Schnabel Speaks,,,
 2026-07-14,Tuesday,02:00,GBP,Medium,BoE MPC Member Pill Speaks,,,
 2026-07-14,Tuesday,02:00,USD,Medium,Federal Budget Balance  (Jun),,-132.8B,-293.0B
+2026-07-14,Tuesday,03:00,EGP,Low,Current Account (USD)  (Q1),,,-10M
 2026-07-14,Tuesday,05:00,EUR,Medium,ECB President Lagarde Speaks,,,
 2026-07-14,Tuesday,06:00,NZD,Low,NZIER QSBO Capacity Utilization  (Q2),,,91.2%
 2026-07-14,Tuesday,06:00,NZD,Medium,NZIER Business Confidence  (Q2),,,-4%
 2026-07-14,Tuesday,06:45,NZD,Low,External Migration & Visitors  (May),,,8.00%
 2026-07-14,Tuesday,06:45,NZD,Low,Permanent/Long-Term Migration  (May),,,"3,090"
+2026-07-14,Tuesday,06:45,NZD,Low,Visitor Arrivals (MoM),,,2.3%
 2026-07-14,Tuesday,07:00,GBP,Medium,BRC Retail Sales Monitor (YoY)  (Jun),,2.9%,3.4%
-2026-07-14,Tuesday,08:00,SGD,Low,GDP (QoQ)  (Q2),,,3.9%
-2026-07-14,Tuesday,08:00,SGD,Low,GDP (YoY)  (Q2),,5.3%,6.0%
+2026-07-14,Tuesday,08:00,SGD,Low,GDP (QoQ)  (Q2),,1.1%,3.9%
+2026-07-14,Tuesday,08:00,SGD,Low,GDP (YoY)  (Q2),,5.5%,6.0%
 2026-07-14,Tuesday,08:30,AUD,Low,Westpac Consumer Sentiment  (Jul),,,-2.9%
 2026-07-14,Tuesday,09:30,AUD,Low,NAB Business Survey  (Jun),,,3
 2026-07-14,Tuesday,09:30,AUD,Medium,NAB Business Confidence  (Jun),,,-14
+2026-07-14,Tuesday,11:00,CNY,Low,Exports  (Jun),,,13.80M
+2026-07-14,Tuesday,11:00,CNY,Low,Imports  (Jun),,,21.50M
+2026-07-14,Tuesday,11:00,CNY,Low,Trade Balance  (Jun),,820.00B,723.98B
+2026-07-14,Tuesday,11:00,CNY,Medium,Exports (YoY)  (Jun),,18.2%,19.4%
+2026-07-14,Tuesday,11:00,CNY,Medium,Imports (YoY)  (Jun),,24.0%,27.4%
+2026-07-14,Tuesday,11:00,CNY,Medium,Trade Balance (USD)  (Jun),,121.40B,105.43B
 2026-07-14,Tuesday,12:30,JPY,Low,Capacity Utilization (MoM)  (May),,,-0.8%
 2026-07-14,Tuesday,12:30,JPY,Medium,Industrial Production (MoM)  (May),,0.5%,0.5%
 2026-07-14,Tuesday,13:00,EUR,Low,CPI (MoM)  (Jun),,,0.50%
@@ -12512,12 +12519,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-14,Tuesday,14:30,INR,Low,WPI Fuel (YoY)  (Jun),,,30.33%
 2026-07-14,Tuesday,14:30,INR,Low,WPI Manufacturing Inflation (YoY)  (Jun),,,7.48%
 2026-07-14,Tuesday,14:30,INR,Medium,WPI Inflation (YoY)  (Jun),,9.15%,9.68%
-2026-07-14,Tuesday,15:30,CNY,Low,Exports  (Jun),,,13.80M
-2026-07-14,Tuesday,15:30,CNY,Low,Imports  (Jun),,,21.50M
-2026-07-14,Tuesday,15:30,CNY,Low,Trade Balance  (Jun),,820.00B,723.98B
-2026-07-14,Tuesday,15:30,CNY,Medium,Exports (YoY)  (Jun),,18.2%,19.4%
-2026-07-14,Tuesday,15:30,CNY,Medium,Imports (YoY)  (Jun),,24.0%,27.4%
-2026-07-14,Tuesday,15:30,CNY,Medium,Trade Balance (USD)  (Jun),,121.40B,105.43B
 2026-07-14,Tuesday,16:00,CNY,Low,Chinese Total Social Financing  (Jun),,"3,770.0B","2,030.0B"
 2026-07-14,Tuesday,16:00,CNY,Low,M2 Money Stock (YoY)  (Jun),,8.5%,8.6%
 2026-07-14,Tuesday,16:00,CNY,Low,Outstanding Loan Growth (YoY)  (Jun),,5.4%,5.5%
@@ -12532,9 +12533,9 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-14,Tuesday,20:00,PLN,Low,Current Account (EUR)  (May),,,"-1,558M"
 2026-07-14,Tuesday,20:15,USD,Medium,ADP Employment Change Weekly,,,21.00K
 2026-07-14,Tuesday,20:30,USD,High,CPI (MoM)  (Jun),,-0.1%,0.5%
-2026-07-14,Tuesday,20:30,USD,High,CPI (YoY)  (Jun),,,4.2%
-2026-07-14,Tuesday,20:30,USD,High,Core CPI (MoM)  (Jun),,0.3%,0.2%
-2026-07-14,Tuesday,20:30,USD,Low,"CPI Index, n.s.a.  (Jun)",,,335.12
+2026-07-14,Tuesday,20:30,USD,High,CPI (YoY)  (Jun),,3.8%,4.2%
+2026-07-14,Tuesday,20:30,USD,High,Core CPI (MoM)  (Jun),,0.2%,0.2%
+2026-07-14,Tuesday,20:30,USD,Low,"CPI Index, n.s.a.  (Jun)",,334.71,335.12
 2026-07-14,Tuesday,20:30,USD,Low,"CPI Index, s.a  (Jun)",,,333.98
 2026-07-14,Tuesday,20:30,USD,Low,"CPI, n.s.a (MoM)  (Jun)",,,0.63%
 2026-07-14,Tuesday,20:30,USD,Low,Core CPI Index  (Jun),,,336.12
@@ -12553,7 +12554,6 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-15,Wednesday,02:55,USD,Medium,FOMC Member Bowman Speaks,,,
 2026-07-15,Wednesday,03:00,ARS,Low,CPI (MoM)  (Jun),,1.9%,2.3%
 2026-07-15,Wednesday,03:00,ARS,Low,CPI (YoY)  (Jun),,33.2%,33.6%
-2026-07-15,Wednesday,03:00,ARS,Low,National CPI (MoM)  (Jun),,,2.10%
 2026-07-15,Wednesday,04:00,GBP,Medium,BoE Gov Bailey Speaks,,,
 2026-07-15,Wednesday,04:00,USD,Low,Overall Net Capital Flow  (May),,,26.10B
 2026-07-15,Wednesday,04:00,USD,Low,TIC Net Long-Term Transactions including Swaps  (May),,,103.10B
@@ -12585,6 +12585,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-15,Wednesday,11:00,KRW,Low,M2 Money supply  (May),,,8.10%
 2026-07-15,Wednesday,11:00,KRW,Low,M3 Money Supply  (May),,,"6,259.2B"
 2026-07-15,Wednesday,12:30,JPY,Low,Tertiary Industry Activity Index  (May),,,-10.60
+2026-07-15,Wednesday,14:00,NOK,Low,Core CPI YTD  (Jun),,,3.4%
+2026-07-15,Wednesday,14:00,NOK,Low,Core Inflation (MoM)  (Jun),,,0.4%
 2026-07-15,Wednesday,14:00,RON,Low,Industrial Production (MoM)  (May),,,1.5%
 2026-07-15,Wednesday,14:00,RON,Low,Industrial Production (YoY)  (May),,,-3.1%
 2026-07-15,Wednesday,14:00,SAR,Low,CPI (MoM)  (Jun),,,0.2%
@@ -12621,6 +12623,7 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-15,Wednesday,18:00,OMR,Low,CPI (MoM)  (Jun),,,0.5%
 2026-07-15,Wednesday,18:00,OMR,Low,CPI (YoY)  (Jun),,,3.8%
 2026-07-15,Wednesday,18:30,GBP,Medium,BoE MPC Member Pill Speaks,,,
+2026-07-15,Wednesday,19:00,OMR,Low,CPI (YoY)  (Jun),,,3.8%
 2026-07-15,Wednesday,19:00,USD,Low,MBA 30-Year Mortgage Rate,,,6.58%
 2026-07-15,Wednesday,19:00,USD,Low,MBA Mortgage Applications (WoW),,,-2.2%
 2026-07-15,Wednesday,19:00,USD,Low,MBA Purchase Index,,,169.5
@@ -12757,6 +12760,8 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-17,Friday,15:00,EUR,Low,Austrian HICP (YoY)  (Jun),,3.1%,3.1%
 2026-07-17,Friday,15:00,EUR,Low,Slovak EU Normalized CPI (MoM)  (Jun),,-0.20%,0.40%
 2026-07-17,Friday,15:00,EUR,Low,Slovak EU Normalized CPI (YoY)  (Jun),,3.50%,4.00%
+2026-07-17,Friday,15:30,THB,Low,Currency Swaps (USD),,,23.5B
+2026-07-17,Friday,15:30,THB,Low,Foreign Reserves (USD),,,281.1B
 2026-07-17,Friday,16:00,EUR,Low,Current Account  (May),,17.1B,15.7B
 2026-07-17,Friday,16:00,EUR,Low,Current Account n.s.a.  (May),,,14.9B
 2026-07-17,Friday,16:30,HKD,Low,Unemployment Rate  (Jun),,,3.7%
@@ -12771,9 +12776,10 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-17,Friday,17:00,EUR,Medium,Core CPI (YoY)  (Jun),,2.4%,2.4%
 2026-07-17,Friday,18:00,EUR,Low,Portuguese Current Account  (May),,,-0.265B
 2026-07-17,Friday,19:00,BRL,Low,IGP-10 Inflation Index (MoM)  (Jul),,,-0.3%
-2026-07-17,Friday,19:30,INR,Low,"FX Reserves, USD",,,666.93B
+2026-07-17,Friday,19:30,INR,Low,"FX Reserves, USD",,,674.19B
 2026-07-17,Friday,19:30,INR,Low,M3 Money Supply,,,11.9%
-2026-07-17,Friday,19:30,TRY,Low,Gross FX Reserves,,,
+2026-07-17,Friday,19:30,TRY,Low,Gross FX Reserves,,,61.95B
+2026-07-17,Friday,19:30,TRY,Low,Net FX Reserves,,,55.04%
 2026-07-17,Friday,20:00,BRL,Low,IBC-Br Economic Activity  (May),,,0.50%
 2026-07-17,Friday,20:30,CAD,Low,Foreign Securities Purchases by Canadians  (May),,,-11.360B
 2026-07-17,Friday,20:30,CAD,Medium,Foreign Securities Purchases  (May),,15.21B,46.91B
@@ -12819,3 +12825,64 @@ Date,Day,Time,Cur.,Imp.,Event,Actual,Forecast,Previous
 2026-07-18,Saturday,03:30,USD,Medium,CFTC Gold speculative net positions,,,194.2K
 2026-07-18,Saturday,03:30,USD,Medium,CFTC Nasdaq 100 speculative net positions,,,2.1K
 2026-07-18,Saturday,03:30,USD,Medium,CFTC S&P 500 speculative net positions,,,-42.9K
+2026-07-20,Monday,All Day,,Holiday,Botswana - Presidents' Day,,,
+2026-07-20,Monday,All Day,,Holiday,Colombia - Declaration of Independence,,,
+2026-07-20,Monday,All Day,,Holiday,Japan - Marine Day,,,
+2026-07-20,Monday,06:45,NZD,Low,Exports  (Jun),,,8.88B
+2026-07-20,Monday,06:45,NZD,Low,Imports  (Jun),,,8.08B
+2026-07-20,Monday,06:45,NZD,Low,Trade Balance (MoM)  (Jun),,,800M
+2026-07-20,Monday,06:45,NZD,Low,Trade Balance (YoY)  (Jun),,,"-3,370M"
+2026-07-20,Monday,07:00,GBP,Low,Rightmove House Price Index (YoY)  (Jul),,,-0.5%
+2026-07-20,Monday,09:00,CNY,Medium,China Loan Prime Rate 5Y  (Jul),,,3.50%
+2026-07-20,Monday,12:00,MYR,Low,Exports (YoY)  (Jun),,,45.3%
+2026-07-20,Monday,12:00,MYR,Low,Imports (YoY)  (Jun),,,14.1%
+2026-07-20,Monday,12:00,MYR,Low,Trade Balance  (Jun),,,40.40B
+2026-07-20,Monday,13:00,EUR,Low,Estonian PPI (MoM)  (Jun),,,1.1%
+2026-07-20,Monday,13:00,EUR,Low,Estonian PPI (YoY)  (Jun),,,2.7%
+2026-07-20,Monday,14:00,CHF,Low,Trade Balance  (Jun),,,6.110B
+2026-07-20,Monday,14:00,EUR,Low,German PPI (YoY)  (Jun),,,2.2%
+2026-07-20,Monday,14:00,EUR,Medium,German PPI (MoM)  (Jun),,,0.3%
+2026-07-20,Monday,15:00,TRY,Low,End Year CPI Forecast  (Jul),,,29.14%
+2026-07-20,Monday,15:30,PLN,Low,Corp. Sector Wages (YoY)  (Jun),,,5.8%
+2026-07-20,Monday,15:30,PLN,Low,Employment Growth (YoY)  (Jun),,,-0.9%
+2026-07-20,Monday,15:30,PLN,Low,Industrial Output (YoY)  (Jun),,,4.1%
+2026-07-20,Monday,15:30,PLN,Low,PPI (YoY)  (Jun),,,2.4%
+2026-07-20,Monday,17:00,EUR,Low,Construction Output (MoM)  (May),,,0.57%
+2026-07-20,Monday,19:25,BRL,Low,BCB Focus Market Readout,,,
+2026-07-20,Monday,20:30,CAD,Low,CPI (YoY)  (Jun),,,3.2%
+2026-07-20,Monday,20:30,CAD,Low,Common CPI (YoY)  (Jun),,,2.7%
+2026-07-20,Monday,20:30,CAD,Low,Median CPI (YoY)  (Jun),,,2.1%
+2026-07-20,Monday,20:30,CAD,Low,Trimmed CPI (YoY)  (Jun),,,2.0%
+2026-07-20,Monday,20:30,CAD,Medium,CPI (MoM)  (Jun),,,1.0%
+2026-07-20,Monday,20:30,CAD,Medium,Core CPI (MoM)  (Jun),,,0.6%
+2026-07-20,Monday,20:30,CAD,Medium,Core CPI (YoY)  (Jun),,,2.2%
+2026-07-20,Monday,22:00,USD,Medium,US Leading Index (MoM)  (Jun),,,0.1%
+2026-07-20,Monday,22:30,TRY,Low,Central Government Debt Stock  (Jun),,,"14,989.1B"
+2026-07-21,Tuesday,All Day,,Holiday,Botswana - Presidents' Day,,,
+2026-07-21,Tuesday,03:00,ARS,Low,Trade Balance  (Jun),,,3M
+2026-07-21,Tuesday,06:45,NZD,Medium,CPI (QoQ)  (Q2),,,0.9%
+2026-07-21,Tuesday,06:45,NZD,Medium,CPI (YoY)  (Q2),,,3.1%
+2026-07-21,Tuesday,13:00,EUR,Low,Finnish Unemployment Rate  (Jun),,,10.8%
+2026-07-21,Tuesday,14:00,GBP,Low,Average Earnings ex Bonus  (May),,,3.4%
+2026-07-21,Tuesday,14:00,GBP,Low,Public Sector Net Cash Requirement  (Jun),,,24.069B
+2026-07-21,Tuesday,14:00,GBP,Medium,Average Earnings Index +Bonus  (May),,,4.4%
+2026-07-21,Tuesday,14:00,GBP,Medium,Claimant Count Change  (Jun),,,31.2K
+2026-07-21,Tuesday,14:00,GBP,Medium,Employment Change 3M/3M (MoM)  (May),,,100K
+2026-07-21,Tuesday,14:00,GBP,Medium,Unemployment Rate  (May),,,4.9%
+2026-07-21,Tuesday,14:00,NOK,Low,Unemployment Rate  (Jun),,,4.4%
+2026-07-21,Tuesday,15:00,CHF,Low,M3 Money Supply  (Jun),,,"1,228,273.0B"
+2026-07-21,Tuesday,16:00,EUR,Low,Greek Current Account (YoY)  (May),,,-1.389B
+2026-07-21,Tuesday,16:00,TWD,Low,Export Orders (YoY)  (Jun),,,47.2%
+2026-07-21,Tuesday,16:30,HKD,Low,CPI (MoM)  (Jun),,,0.00%
+2026-07-21,Tuesday,16:30,HKD,Low,CPI (YoY)  (Jun),,,2.00%
+2026-07-21,Tuesday,17:00,EUR,Medium,German ZEW Current Conditions  (Jul),,,-81.0
+2026-07-21,Tuesday,17:00,EUR,Medium,German ZEW Economic Sentiment  (Jul),,,10.5
+2026-07-21,Tuesday,17:00,EUR,Medium,ZEW Economic Sentiment  (Jul),,,9.5
+2026-07-21,Tuesday,18:00,EUR,Low,Latvian PPI (MoM)  (Jun),,,0.9%
+2026-07-21,Tuesday,18:00,EUR,Low,Latvian PPI (YoY)  (Jun),,,1.8%
+2026-07-21,Tuesday,20:00,HUF,Low,Interest Rate Decision  (Jul),,,6.00%
+2026-07-21,Tuesday,20:00,MXN,Low,Retail Sales (MoM)  (May),,,0.8%
+2026-07-21,Tuesday,20:00,MXN,Low,Retail Sales (YoY)  (May),,,4.4%
+2026-07-21,Tuesday,23:00,COP,Low,Imports (YoY)  (May),,,15.80%
+2026-07-21,Tuesday,23:00,COP,Low,Trade Balance (USD)  (May),,,-1.761B
+2026-07-21,Tuesday,23:00,NGN,Low,Interest Rate Decision,,,26.50%
