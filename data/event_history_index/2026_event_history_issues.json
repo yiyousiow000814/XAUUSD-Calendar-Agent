@@ -1,5 +1,5 @@
 {
-  "generated_at": "14-07-2026 16:02",
+  "generated_at": "16-07-2026 16:02",
   "issues": [
     {
       "issue": "previous_missing_filled",
@@ -766,8 +766,8 @@
       "date": "2026-07-23",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "215K",
-      "previous_effective": "215K"
+      "prior_actual": "208K",
+      "previous_effective": "208K"
     },
     {
       "issue": "previous_missing_filled",
@@ -778,8 +778,8 @@
       "date": "2026-07-23",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "218.75K",
-      "previous_effective": "218.75K"
+      "prior_actual": "214.25K",
+      "previous_effective": "214.25K"
     },
     {
       "issue": "previous_missing_filled",
@@ -790,8 +790,8 @@
       "date": "2026-07-23",
       "time": "22:30",
       "previous_raw": "",
-      "prior_actual": "61B",
-      "previous_effective": "61B"
+      "prior_actual": "41B",
+      "previous_effective": "41B"
     },
     {
       "issue": "previous_missing_filled",
@@ -802,8 +802,8 @@
       "date": "2026-07-23",
       "time": "20:30",
       "previous_raw": "",
-      "prior_actual": "1,814K",
-      "previous_effective": "1,814K"
+      "prior_actual": "1,805K",
+      "previous_effective": "1,805K"
     },
     {
       "issue": "previous_missing_filled",
@@ -826,8 +826,8 @@
       "date": "2026-07-23",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.630%",
-      "previous_effective": "3.630%"
+      "prior_actual": "3.660%",
+      "previous_effective": "3.660%"
     },
     {
       "issue": "previous_missing_filled",
@@ -850,8 +850,8 @@
       "date": "2026-07-23",
       "time": "23:30",
       "previous_raw": "",
-      "prior_actual": "3.635%",
-      "previous_effective": "3.635%"
+      "prior_actual": "3.650%",
+      "previous_effective": "3.650%"
     },
     {
       "issue": "previous_missing_filled",
@@ -862,8 +862,20 @@
       "date": "2026-07-23",
       "time": "19:30",
       "previous_raw": "",
-      "prior_actual": "61.95B",
-      "previous_effective": "61.95B"
+      "prior_actual": "67.12B",
+      "previous_effective": "67.12B"
+    },
+    {
+      "issue": "previous_missing_filled",
+      "event_id": "CAD::Retail Sales::m/m",
+      "cur": "CAD",
+      "event": "Retail Sales (MoM)  (Jun)",
+      "period": "jun",
+      "date": "2026-07-23",
+      "time": "20:30",
+      "previous_raw": "",
+      "prior_actual": "1.0%",
+      "previous_effective": "1.0%"
     }
   ]
 }
