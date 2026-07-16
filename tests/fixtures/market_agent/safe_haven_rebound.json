@@ -1,0 +1,36 @@
+{
+  "scenario_id": "safe_haven_rebound",
+  "as_of_myt": "18-05-2026 17:05",
+  "market": {
+    "symbol": "XAUUSD",
+    "from_price": 4528.0,
+    "to_price": 4550.0,
+    "move_percent": 0.49,
+    "move_percent_15m": 0.41,
+    "move_percent_1h": 0.72,
+    "window_minutes": 60,
+    "breaks": ["ny_open", "retraced_50pct"]
+  },
+  "cross_asset": {
+    "dxy_percent": -0.08,
+    "us10y_bps": -5.4,
+    "us2y_bps": -4.7,
+    "wti_percent": -0.4,
+    "brent_percent": -0.5,
+    "vix_percent": 6.2,
+    "spx_percent": -1.1,
+    "nasdaq_percent": -1.4
+  },
+  "calendar_events": [],
+  "news": [
+    {
+      "timestamp_myt": "18-05-2026 16:40",
+      "source": "Reuters",
+      "title": "Equities slide as risk appetite deteriorates",
+      "relevance_reason": "Risk-off flow can lift gold alongside lower yields",
+      "impact_direction_on_gold": "bullish",
+      "tags": ["risk"]
+    }
+  ],
+  "expected_llm_claim": null
+}

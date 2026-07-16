@@ -24,6 +24,11 @@
 - [Getting Started](docs/getting-started.md)
 - [Calendar Utilities](scripts/calendar/README.md#calendar-utilities)
 - [News collection & analysis](scripts/news/README.md)
+- [Market Situation Agent Phase 1](docs/market-situation-agent-phase1.md)
+- [Market Situation Agent Phase 2](docs/market-situation-agent-phase2.md)
+- [Market Situation Agent Phase 3](docs/market-situation-agent-phase3.md)
+- [Market Situation Agent Phase 4](docs/market-situation-agent-phase4.md)
+- [Market Situation Agent Phase 5](docs/market-situation-agent-phase5.md)
 
 ## License
 Licensed under the PolyForm Noncommercial 1.0.0 license. See [LICENSE](LICENSE).

@@ -2,6 +2,7 @@ import path from "node:path";
 import { promises as fs } from "node:fs";
 
 export const generateReport = async (items, videos, { artifactsRoot, reportPath }) => {
+  const generatedAt = new Date().toISOString();
   const order = ["dark", "light", "system-dark", "system-light"];
   const themes = Array.from(new Set(items.map((item) => item.theme)))
     .sort((a, b) => {
@@ -19,7 +20,9 @@ export const generateReport = async (items, videos, { artifactsRoot, reportPath 
     return acc;
   }, {});
 
-  const rel = (target) => path.relative(artifactsRoot, target).replace(/\\\\/g, "/");
+  const rel = (target) => path.relative(artifactsRoot, target).replace(/\\/g, "/");
+  const assetSrc = (target) => `${rel(target)}?v=${encodeURIComponent(generatedAt)}`;
+  const relSrc = (relativePath) => `${relativePath}?v=${encodeURIComponent(generatedAt)}`;
   const escapeHtml = (value) =>
     String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -52,6 +55,7 @@ export const generateReport = async (items, videos, { artifactsRoot, reportPath 
   </head>
   <body>
     <h1>UI Check Report</h1>
+    <p class="muted">Generated: ${escapeHtml(generatedAt)}</p>
     <p class="muted">GIF previews animate only when opened in a real browser (Edge/Chrome). Some file viewers (GitHub/VSCode) render the first frame only.</p>
     <p>Artifacts: ${artifactsRoot}</p>
     ${Object.entries(grouped)
@@ -73,11 +77,12 @@ export const generateReport = async (items, videos, { artifactsRoot, reportPath 
                     const hasFrames = Array.isArray(entry.frames) && entry.frames.length > 1;
                     if (hasFrames) {
                       const frames = entry.frames.map((frame) => rel(frame));
+                      const frameSrcs = frames.map((frame) => relSrc(frame));
                       return `
                         <div class="cell">
-                          <div class="anim" data-frames='${escapeHtml(JSON.stringify(frames))}' data-gap='${escapeHtml(entry.frameGapMs || 120)}'>
+                          <div class="anim" data-frames='${escapeHtml(JSON.stringify(frameSrcs))}' data-gap='${escapeHtml(entry.frameGapMs || 120)}'>
                             <span class="anim-badge">gif</span>
-                            <img src="${escapeHtml(frames[0])}" />
+                            <img src="${escapeHtml(frameSrcs[0])}" />
                           </div>
                           <div class="label">${escapeHtml(entry.label ?? entry.state)}</div>
                           <div class="muted">${frames.length} frames</div>
@@ -85,7 +90,7 @@ export const generateReport = async (items, videos, { artifactsRoot, reportPath 
                     }
                     return `
                       <div class="cell">
-                        <img src="${escapeHtml(rel(entry.path))}" />
+                        <img src="${escapeHtml(assetSrc(entry.path))}" />
                         <div class="label">${escapeHtml(entry.label ?? entry.state)}</div>
                       </div>`;
                   })
@@ -114,7 +119,7 @@ export const generateReport = async (items, videos, { artifactsRoot, reportPath 
           return `
             <div class="cell" style="margin-bottom: 18px;">
               <div class="label">${escapeHtml(name)}</div>
-              <video src="${escapeHtml(src)}" controls playsinline muted loop></video>
+              <video src="${escapeHtml(relSrc(src))}" controls playsinline muted loop></video>
               <div class="muted"><a href="${escapeHtml(src)}">Open ${escapeHtml(name)}</a></div>
             </div>`;
         })

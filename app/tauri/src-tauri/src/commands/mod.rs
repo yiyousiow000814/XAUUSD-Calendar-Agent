@@ -20,6 +20,7 @@ pub(crate) mod analysis;
 pub(crate) mod history;
 pub(crate) mod lifecycle;
 pub(crate) mod logs;
+pub(crate) mod market_agent;
 pub(crate) mod open;
 pub(crate) mod pull;
 pub(crate) mod settings;
@@ -191,10 +192,24 @@ fn file_mtime_ms(path: &Path) -> Option<i64> {
 fn open_target(target: &str) -> bool {
     #[cfg(target_os = "windows")]
     {
-        std::process::Command::new("cmd")
-            .args(["/c", "start", "", target])
-            .spawn()
-            .is_ok()
+        use std::iter::once;
+        use std::ptr::null;
+        use windows_sys::Win32::UI::Shell::ShellExecuteW;
+        use windows_sys::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
+
+        let operation: Vec<u16> = "open".encode_utf16().chain(once(0)).collect();
+        let target: Vec<u16> = target.encode_utf16().chain(once(0)).collect();
+        let result = unsafe {
+            ShellExecuteW(
+                0,
+                operation.as_ptr(),
+                target.as_ptr(),
+                null(),
+                null(),
+                SW_SHOWNORMAL,
+            )
+        };
+        result as isize > 32
     }
     #[cfg(target_os = "macos")]
     {

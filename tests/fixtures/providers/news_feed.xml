@@ -1,0 +1,19 @@
+<rss version="2.0">
+  <channel>
+    <title>Reuters Markets</title>
+    <item>
+      <title>Fed headline lifts yields and pressures gold</title>
+      <link>https://example.com/fed-gold</link>
+      <pubDate>Tue, 19 May 2026 07:10:00 +0800</pubDate>
+    </item>
+    <item>
+      <title>Fed headline lifts yields and pressures gold</title>
+      <link>https://example.com/fed-gold</link>
+      <pubDate>Tue, 19 May 2026 07:10:00 +0800</pubDate>
+    </item>
+    <item>
+      <title>Opinion: Gold forecast into CPI week</title>
+      <link>https://example.com/opinion-gold</link>
+    </item>
+  </channel>
+</rss>

@@ -1,5 +1,7 @@
 ﻿import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useLayoutEffect } from "react";
+import { Suspense, lazy } from "react";
+import type { CSSProperties } from "react";
 import { backend, isWebview, tauriListen } from "./api";
 import type { EventHistoryResponse, FilterOption, Settings, Snapshot, ToastType } from "./types";
 import { ActivityDrawer } from "./components/ActivityDrawer";
@@ -7,10 +9,10 @@ import { ActivityLog } from "./components/ActivityLog";
 import { AlertModal } from "./components/AlertModal";
 import { AppBar } from "./components/AppBar";
 import { BottomClock } from "./components/BottomClock";
-import { EventHistoryModal } from "./components/EventHistoryModal";
 import { Footer } from "./components/Footer";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { InitOverlay } from "./components/InitOverlay";
+import type { MarketAgentSection } from "./components/MarketAgentPage";
 import { NextEvents } from "./components/NextEvents";
 import { SettingsModal } from "./components/SettingsModal";
 import { TemporaryPathWarningModal, type TemporaryPathWarningMode } from "./components/TemporaryPathWarningModal";
@@ -19,6 +21,35 @@ import { CURRENCY_OPTIONS } from "./constants/currencyOptions";
 import { formatLocalDateTime } from "./utils/calendarTime";
 import { impactTone, levelTone } from "./utils/ui";
 import "./App.css";
+import type {
+  MarketAgentDriverAttentionResponse,
+  MarketAgentEvidenceForRunResponse,
+  MarketAgentLLMActionResponse,
+  MarketAgentLLMConfigInput,
+  MarketAgentLLMConfigResponse,
+  MarketAgentLLMSetupResponse,
+  MarketAgentLiveQuoteResponse,
+  MarketAgentMonitorStatusResponse,
+  MarketAgentOllamaPullProgress,
+  MarketAgentProviderActionResponse,
+  MarketAgentProviderConfigInput,
+  MarketAgentProviderConfigResponse,
+  MarketAgentProviderHealthResponse,
+  MarketAgentReplayResponse,
+  MarketAgentSnapshotResponse,
+  MarketAgentTelegramActionResponse,
+  MarketAgentTelegramConfigInput,
+  MarketAgentTelegramConfigResponse
+} from "./types";
+
+const loadMarketAgentPage = () => import("./components/MarketAgentPage");
+
+const MarketAgentPage = lazy(() =>
+  loadMarketAgentPage().then((module) => ({ default: module.MarketAgentPage }))
+);
+const EventHistoryModal = lazy(() =>
+  import("./components/EventHistoryModal").then((module) => ({ default: module.EventHistoryModal }))
+);
 
 const defaultCurrencyOptions = Array.from(CURRENCY_OPTIONS);
 const impactOptions = ["Low", "Medium", "High"];
@@ -26,6 +57,74 @@ const impactFilterStorageKey = "xauusd:nextEvents:impactFilter";
 const UI_STATE_HEARTBEAT_MS = 30000;
 const UI_STATE_INPUT_THROTTLE_MS = 1000;
 const UI_STATE_SEND_THROTTLE_MS = 2000;
+const APP_SHELL_DESIGN_WIDTH = 1600;
+const APP_SHELL_DESIGN_HEIGHT = 900;
+const MARKET_AGENT_LIVE_QUOTE_RESTART_THROTTLE_MS = 30000;
+
+type AppViewportFit = {
+  scale: number;
+  width: number;
+  height: number;
+  designHeight: number;
+  offsetX: number;
+  offsetY: number;
+};
+
+const getAppViewportFit = (): AppViewportFit => {
+  if (typeof window === "undefined") {
+    return {
+      scale: 1,
+      width: APP_SHELL_DESIGN_WIDTH,
+      height: APP_SHELL_DESIGN_HEIGHT,
+      designHeight: APP_SHELL_DESIGN_HEIGHT,
+      offsetX: 0,
+      offsetY: 0
+    };
+  }
+
+  const viewportWidth = Math.max(1, window.innerWidth || APP_SHELL_DESIGN_WIDTH);
+  const viewportHeight = Math.max(1, window.innerHeight || APP_SHELL_DESIGN_HEIGHT);
+  const scale = Number(
+    Math.min(
+      viewportWidth / APP_SHELL_DESIGN_WIDTH,
+      viewportHeight / APP_SHELL_DESIGN_HEIGHT
+    ).toFixed(4)
+  );
+  const designHeight = Math.max(APP_SHELL_DESIGN_HEIGHT, viewportHeight / scale);
+  const width = APP_SHELL_DESIGN_WIDTH * scale;
+  const height = designHeight * scale;
+  const snap = (value: number) => {
+    const ratio = window.devicePixelRatio || 1;
+    return Math.round(value * ratio) / ratio;
+  };
+
+  return {
+    scale,
+    width,
+    height,
+    designHeight,
+    offsetX: snap((viewportWidth - width) / 2),
+    offsetY: 0
+  };
+};
+
+const shouldRecoverMarketAgentLiveQuote = (quote: MarketAgentLiveQuoteResponse | null | undefined) => {
+  if (!quote) return false;
+  if (quote.ok === false) return true;
+  const status = quote.status || {};
+  const phase = String(quote.phase || status.phase || "").toLowerCase();
+  const running = Boolean(quote.running || status.running);
+  const providerHealth = quote.provider_health;
+  const isStale =
+    providerHealth &&
+    (providerHealth.is_stale === true ||
+      String(providerHealth.data_mode || "").toLowerCase() === "stale");
+  if (isStale) return true;
+  if (!running) return true;
+  return Boolean(phase && phase !== "running");
+};
+
+const MARKET_AGENT_DASHBOARD_REPLAY_REFRESH_THROTTLE_MS = 60_000;
 
 const normalizeCurrencyOptions = (_options: string[]) => {
   // Design decision: keep a stable, curated currency list so the UI remains
@@ -67,6 +166,79 @@ const emptySettings: Settings = {
   temporaryPath: "",
   repoPath: "",
   logPath: ""
+};
+
+type MainView = "calendar" | "market-agent";
+type MarketAgentRangePreset = "day" | "month";
+
+const pad2 = (value: number) => String(value).padStart(2, "0");
+
+const toDateTimeLocalValue = (iso: string) => {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(
+    date.getHours()
+  )}:${pad2(date.getMinutes())}`;
+};
+
+const toOffsetIso = (localDateTime: string) => {
+  if (!localDateTime) return "";
+  const date = new Date(localDateTime);
+  if (Number.isNaN(date.getTime())) return "";
+  const offsetMinutes = -date.getTimezoneOffset();
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const absoluteMinutes = Math.abs(offsetMinutes);
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(
+    date.getHours()
+  )}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}${sign}${pad2(
+    Math.floor(absoluteMinutes / 60)
+  )}:${pad2(absoluteMinutes % 60)}`;
+};
+
+const runAfterFirstPaint = (work: () => void, delayMs = 0) => {
+  if (typeof window === "undefined") {
+    work();
+    return () => {};
+  }
+  let timeoutId: number | null = null;
+  const frameId = window.requestAnimationFrame(() => {
+    timeoutId = window.setTimeout(() => {
+      timeoutId = null;
+      work();
+    }, delayMs);
+  });
+  return () => {
+    window.cancelAnimationFrame(frameId);
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+  };
+};
+
+const runAfterDelay = (delayMs: number, work: () => void) => {
+  if (typeof window === "undefined") {
+    work();
+    return () => {};
+  }
+  const timeoutId = window.setTimeout(work, delayMs);
+  return () => window.clearTimeout(timeoutId);
+};
+
+const buildRangeWindow = (preset: MarketAgentRangePreset) => {
+  const end = new Date();
+  const start = new Date(end);
+  if (preset === "month") {
+    start.setDate(start.getDate() - 30);
+  } else {
+    start.setHours(start.getHours() - 24);
+  }
+  return {
+    startIso: toOffsetIso(toDateTimeLocalValue(start.toISOString())),
+    endIso: toOffsetIso(toDateTimeLocalValue(end.toISOString())),
+    startInput: toDateTimeLocalValue(start.toISOString()),
+    endInput: toDateTimeLocalValue(end.toISOString())
+  };
 };
 
 type TemporaryPathWarningContext = {
@@ -233,12 +405,40 @@ export default function App() {
   const activityLabelRef = useRef<HTMLSpanElement | null>(null);
   const activityLabelMeasureRef = useRef<HTMLSpanElement | null>(null);
   const [activityLabelWidth, setActivityLabelWidth] = useState<number>(92);
+  const [marketAgentSnapshot, setMarketAgentSnapshot] = useState<MarketAgentSnapshotResponse | null>(null);
+  const [mainView, setMainView] = useState<MainView>("calendar");
+  const mainViewRef = useRef<MainView>("calendar");
+  const [appViewportFit, setAppViewportFit] = useState<AppViewportFit>(() => getAppViewportFit());
+  const [marketAgentReplay, setMarketAgentReplay] = useState<MarketAgentReplayResponse | null>(null);
+  const [marketAgentProviderHealth, setMarketAgentProviderHealth] = useState<MarketAgentProviderHealthResponse | null>(null);
+  const [marketAgentLiveQuote, setMarketAgentLiveQuote] = useState<MarketAgentLiveQuoteResponse | null>(null);
+  const [marketAgentProviderConfig, setMarketAgentProviderConfig] = useState<MarketAgentProviderConfigResponse | null>(null);
+  const [marketAgentTelegramConfig, setMarketAgentTelegramConfig] = useState<MarketAgentTelegramConfigResponse | null>(null);
+  const [marketAgentLLMConfig, setMarketAgentLLMConfig] = useState<MarketAgentLLMConfigResponse | null>(null);
+  const [marketAgentLocalAISetup, setMarketAgentLocalAISetup] = useState<MarketAgentLLMSetupResponse | null>(null);
+  const [marketAgentOllamaPullProgress, setMarketAgentOllamaPullProgress] = useState<MarketAgentOllamaPullProgress | null>(null);
+  const [marketAgentDriverAttention, setMarketAgentDriverAttention] = useState<MarketAgentDriverAttentionResponse | null>(null);
+  const [marketAgentEvidence, setMarketAgentEvidence] = useState<MarketAgentEvidenceForRunResponse | null>(null);
+  const [marketAgentMonitorStatus, setMarketAgentMonitorStatus] = useState<MarketAgentMonitorStatusResponse | null>(null);
+  const [marketAgentActiveSection, setMarketAgentActiveSection] = useState<MarketAgentSection>("live");
+  const [marketAgentSelectedRunId, setMarketAgentSelectedRunId] = useState<number | null>(null);
+  const [marketAgentRangePreset, setMarketAgentRangePreset] = useState<MarketAgentRangePreset>("day");
+  const initialMarketAgentRange = useMemo(() => buildRangeWindow("day"), []);
+  const [marketAgentRangeStart, setMarketAgentRangeStart] = useState<string>(initialMarketAgentRange.startIso);
+  const [marketAgentRangeEnd, setMarketAgentRangeEnd] = useState<string>(initialMarketAgentRange.endIso);
+  const [marketAgentRangeStartInput, setMarketAgentRangeStartInput] = useState<string>(initialMarketAgentRange.startInput);
+  const [marketAgentRangeEndInput, setMarketAgentRangeEndInput] = useState<string>(initialMarketAgentRange.endInput);
   const activityLabelWidthRef = useRef(92);
   const activityLabelIdleRafRef = useRef<number | null>(null);
   const activityOpenIntentRef = useRef(false);
   const activityHoverBlockUntilRef = useRef(0);
   const activityPointerDownRef = useRef(false);
   const activityPointerDownTimerRef = useRef<number | null>(null);
+  const marketAgentEntryRefreshKeyRef = useRef(0);
+  const marketAgentMonitorAutoResumeRef = useRef(false);
+  const marketAgentDashboardReplayRefreshRunningRef = useRef(false);
+  const marketAgentDashboardReplayRefreshedAtRef = useRef(0);
+  const marketAgentDashboardReplayRangeKeyRef = useRef("");
   type ActivityPillSnapshot = {
     text: string;
     tone: ActivityNoticeTone;
@@ -294,14 +494,26 @@ export default function App() {
   const historyRequestRef = useRef(0);
   const hasManualCurrencyRef = useRef(false);
   const refreshInFlightRef = useRef(false);
-  const refreshTokenRef = useRef(0);
+  const refreshCycleRef = useRef(0);
   const refreshPendingRef = useRef(false);
   const refreshWaitersRef = useRef<Array<(snapshot: Snapshot | null) => void>>([]);
   const hasReachedReadyRef = useRef(false);
+  const frontendBootCompleteSentRef = useRef(false);
   const refreshRef = useRef<() => Promise<Snapshot | null>>(async () => null);
   const hasLoadedUiPrefsRef = useRef(false);
   const activeAlertIdRef = useRef<string>("");
   const dismissedAlertIdRef = useRef<string>("");
+  const marketAgentManualRefreshAtRef = useRef(0);
+  const marketAgentLiveQuoteRecoverAtRef = useRef(0);
+  const marketAgentLiveQuoteEnsureInFlightRef = useRef(false);
+  const appMountedRef = useRef(true);
+
+  useEffect(() => {
+    appMountedRef.current = true;
+    return () => {
+      appMountedRef.current = false;
+    };
+  }, []);
 
   const withTimeout = useCallback(<T,>(promise: Promise<T>, timeoutMs: number, label: string) => {
     let timer: number | null = null;
@@ -314,6 +526,664 @@ export default function App() {
       if (timer) window.clearTimeout(timer);
     });
   }, []);
+
+  const refreshMarketAgentSnapshot = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentSnapshot(5),
+        8000,
+        "backend.getMarketAgentSnapshot()"
+      );
+      if (!appMountedRef.current) return null;
+      setMarketAgentSnapshot(next);
+      return next;
+    } catch {
+      if (!appMountedRef.current) return null;
+      setMarketAgentSnapshot({
+        ok: false,
+        available: false,
+        message: "Unable to load market situation artifacts.",
+        state: null,
+        alerts: []
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentReplay = useCallback(
+    async (start: string, end: string, mode: "dashboard" | "full" = "full") => {
+      try {
+        const next = await withTimeout(
+        backend.getMarketAgentReplay(start, end, mode),
+        mode === "dashboard" ? 5000 : 10000,
+        `backend.getMarketAgentReplay(${mode})`
+      );
+      if (!appMountedRef.current) return null;
+      setMarketAgentReplay(next);
+      return next;
+    } catch {
+      if (!appMountedRef.current) return null;
+      setMarketAgentReplay({
+        ok: false,
+        available: false,
+          message: "Unable to load market replay.",
+          mode,
+          replay: {
+            price_series: [],
+            related_assets: {},
+            news_items: [],
+            calendar_events: [],
+            driver_attention_timeline: [],
+            timeline_events: [],
+            state_transitions: [],
+            alerts: [],
+            suppressed_alerts: []
+          }
+        });
+        return null;
+      }
+    },
+    [withTimeout]
+  );
+
+  const refreshMarketAgentProviderHealth = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentProviderHealth(),
+        8000,
+        "backend.getMarketAgentProviderHealth()"
+      );
+      if (!appMountedRef.current) return null;
+      setMarketAgentProviderHealth(next);
+      return next;
+    } catch {
+      if (!appMountedRef.current) return null;
+      setMarketAgentProviderHealth({
+        ok: false,
+        available: false,
+        message: "Unable to load provider health.",
+        items: []
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentLiveQuote = useCallback(async (ensureStream = false) => {
+    if (ensureStream) {
+      marketAgentLiveQuoteRecoverAtRef.current = Date.now();
+      marketAgentLiveQuoteEnsureInFlightRef.current = true;
+    }
+    try {
+      const next = await withTimeout(
+        ensureStream ? backend.ensureMarketAgentLiveQuoteStream() : backend.getMarketAgentLiveQuote(),
+        5000,
+        ensureStream
+          ? "backend.ensureMarketAgentLiveQuoteStream()"
+          : "backend.getMarketAgentLiveQuote()"
+      );
+      setMarketAgentLiveQuote(next);
+      if (!ensureStream && shouldRecoverMarketAgentLiveQuote(next)) {
+        const now = Date.now();
+        if (
+          !marketAgentLiveQuoteEnsureInFlightRef.current &&
+          now - marketAgentLiveQuoteRecoverAtRef.current > MARKET_AGENT_LIVE_QUOTE_RESTART_THROTTLE_MS
+        ) {
+          marketAgentLiveQuoteRecoverAtRef.current = now;
+          marketAgentLiveQuoteEnsureInFlightRef.current = true;
+          void withTimeout(
+            backend.ensureMarketAgentLiveQuoteStream(),
+            5000,
+            "backend.ensureMarketAgentLiveQuoteStream(auto-recover)"
+          ).then(setMarketAgentLiveQuote).catch(() => undefined).finally(() => {
+            marketAgentLiveQuoteEnsureInFlightRef.current = false;
+          });
+        }
+      }
+      return next;
+    } catch {
+      return null;
+    } finally {
+      if (ensureStream) {
+        marketAgentLiveQuoteEnsureInFlightRef.current = false;
+      }
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentProviderConfig = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentProviderConfig(),
+        8000,
+        "backend.getMarketAgentProviderConfig()"
+      );
+      setMarketAgentProviderConfig(next);
+      return next;
+    } catch {
+      setMarketAgentProviderConfig({
+        ok: false,
+        available: false,
+        message: "Unable to load provider configuration.",
+        ctrader: null
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentTelegramConfig = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentTelegramConfig(),
+        8000,
+        "backend.getMarketAgentTelegramConfig()"
+      );
+      setMarketAgentTelegramConfig(next);
+      return next;
+    } catch {
+      setMarketAgentTelegramConfig({
+        ok: false,
+        available: false,
+        message: "Unable to load Telegram configuration.",
+        telegram: null
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentLLMConfig = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentLLMConfig(),
+        8000,
+        "backend.getMarketAgentLLMConfig()"
+      );
+      setMarketAgentLLMConfig(next);
+      return next;
+    } catch {
+      setMarketAgentLLMConfig({
+        ok: false,
+        available: false,
+        message: "Unable to load LLM configuration.",
+        llm: null
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentLocalAISetup = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.detectMarketAgentLocalAI(),
+        10000,
+        "backend.detectMarketAgentLocalAI()"
+      );
+      setMarketAgentLocalAISetup(next);
+      return next;
+    } catch {
+      const fallback: MarketAgentLLMSetupResponse = {
+        ok: false,
+        available: true,
+        status: "llm_disabled",
+        message: "Local AI setup is unavailable. Rule-based analysis remains active.",
+        ruleBasedActive: true
+      };
+      setMarketAgentLocalAISetup(fallback);
+      return fallback;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentDriverAttention = useCallback(async () => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentDriverAttention(),
+        8000,
+        "backend.getMarketAgentDriverAttention()"
+      );
+      setMarketAgentDriverAttention(next);
+      return next;
+    } catch {
+      setMarketAgentDriverAttention({
+        ok: false,
+        available: false,
+        message: "Unable to load driver attention.",
+        states: []
+      });
+      return null;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentMonitorStatus = useCallback(async (options?: { includeActivity?: boolean }) => {
+    try {
+      const next = await withTimeout(
+        backend.getMarketAgentMonitorStatus(options),
+        8000,
+        "backend.getMarketAgentMonitorStatus()"
+      );
+      if (
+        next.available &&
+        next.autoStart &&
+        !next.running &&
+        !marketAgentMonitorAutoResumeRef.current
+      ) {
+        marketAgentMonitorAutoResumeRef.current = true;
+        try {
+          const intervalSeconds =
+            typeof next.intervalSeconds === "number" && Number.isFinite(next.intervalSeconds)
+              ? Math.max(10, next.intervalSeconds)
+              : 60;
+          const resumed = await withTimeout(
+            backend.startMarketAgentMonitorLoop(intervalSeconds),
+            15000,
+            "backend.startMarketAgentMonitorLoop(auto-resume)"
+          );
+          setMarketAgentMonitorStatus(resumed);
+          return resumed;
+        } finally {
+          marketAgentMonitorAutoResumeRef.current = false;
+        }
+      }
+      setMarketAgentMonitorStatus(next);
+      return next;
+    } catch {
+      const fallback = {
+        ok: false,
+        available: false,
+        running: false,
+        phase: "error",
+        message: "Unable to load monitor status.",
+        lastError: "Desktop backend unavailable."
+      };
+      setMarketAgentMonitorStatus(fallback);
+      return fallback;
+    }
+  }, [withTimeout]);
+
+  const refreshMarketAgentEvidence = useCallback(
+    async (monitorRunId: number | null) => {
+      if (!monitorRunId) {
+        setMarketAgentEvidence(null);
+        return null;
+      }
+      try {
+        const next = await withTimeout(
+          backend.getMarketAgentEvidenceForRun(monitorRunId),
+          8000,
+          "backend.getMarketAgentEvidenceForRun()"
+        );
+        setMarketAgentEvidence(next);
+        setMarketAgentSelectedRunId(monitorRunId);
+        return next;
+      } catch {
+        setMarketAgentEvidence({
+          ok: false,
+          available: false,
+          message: "Unable to load evidence for selected run.",
+          monitor_run_id: monitorRunId,
+          payload: {}
+        });
+        return null;
+      }
+    },
+    [withTimeout]
+  );
+
+  const selectPreferredMarketAgentRunId = useCallback(
+    (
+      replayResult:
+        | {
+            replay?: {
+              timeline_events?: Array<{ monitor_run_id?: number | null }>;
+              alerts?: Array<{ monitor_run_id?: number | null }>;
+            };
+          }
+        | null
+        | undefined,
+      driverResult: { monitor_run_id?: number | null } | null | undefined,
+      providerResult: { monitor_run_id?: number | null } | null | undefined,
+      monitorResult: { latestMonitorRunId?: number | null } | null | undefined
+    ) => {
+      const candidates = [
+        driverResult?.monitor_run_id,
+        providerResult?.monitor_run_id,
+        monitorResult?.latestMonitorRunId,
+        ...(replayResult?.replay?.timeline_events ?? []).map((item) => item.monitor_run_id),
+        ...(replayResult?.replay?.alerts ?? []).map((item) => item.monitor_run_id)
+      ]
+        .map((value) => Number(value))
+        .filter((value) => Number.isFinite(value) && value > 0);
+      return candidates.length ? Math.max(...candidates) : null;
+    },
+    []
+  );
+
+  const refreshMarketAgentDashboardReplayInBackground = useCallback(
+    async (context?: {
+      driverResult?: MarketAgentDriverAttentionResponse | null;
+      providerResult?: MarketAgentProviderHealthResponse | null;
+      monitorResult?: MarketAgentMonitorStatusResponse | null;
+      force?: boolean;
+    }) => {
+      if (marketAgentDashboardReplayRefreshRunningRef.current) {
+        return null;
+      }
+      const rangeKey = `${marketAgentRangeStart}|${marketAgentRangeEnd}`;
+      const now = Date.now();
+      if (
+        !context?.force &&
+        marketAgentDashboardReplayRangeKeyRef.current === rangeKey &&
+        now - marketAgentDashboardReplayRefreshedAtRef.current < MARKET_AGENT_DASHBOARD_REPLAY_REFRESH_THROTTLE_MS
+      ) {
+        return null;
+      }
+      marketAgentDashboardReplayRefreshRunningRef.current = true;
+      try {
+        const replayResult = await refreshMarketAgentReplay(
+          marketAgentRangeStart,
+          marketAgentRangeEnd,
+          "dashboard"
+        );
+        marketAgentDashboardReplayRangeKeyRef.current = rangeKey;
+        marketAgentDashboardReplayRefreshedAtRef.current = Date.now();
+        const preferredRunId = selectPreferredMarketAgentRunId(
+          replayResult,
+          context?.driverResult,
+          context?.providerResult,
+          context?.monitorResult
+        );
+        if (preferredRunId) {
+          await refreshMarketAgentEvidence(preferredRunId);
+        }
+        return replayResult;
+      } finally {
+        marketAgentDashboardReplayRefreshRunningRef.current = false;
+      }
+    },
+    [
+      marketAgentRangeEnd,
+      marketAgentRangeStart,
+      refreshMarketAgentEvidence,
+      refreshMarketAgentReplay,
+      selectPreferredMarketAgentRunId
+    ]
+  );
+
+  const refreshMarketAgentWorkspace = useCallback(
+    async (start: string, end: string, options?: { includeActivity?: boolean }) => {
+      const [
+        snapshotResult,
+        providerResult,
+        driverResult,
+        replayResult,
+        monitorResult
+      ] = await Promise.all([
+        refreshMarketAgentSnapshot(),
+        refreshMarketAgentProviderHealth(),
+        refreshMarketAgentDriverAttention(),
+        refreshMarketAgentReplay(start, end, "full"),
+        refreshMarketAgentMonitorStatus({ includeActivity: options?.includeActivity })
+      ]);
+      const preferredRunId = selectPreferredMarketAgentRunId(
+        replayResult,
+        driverResult,
+        providerResult,
+        monitorResult
+      );
+      if (preferredRunId) {
+        await refreshMarketAgentEvidence(preferredRunId);
+      } else {
+        setMarketAgentEvidence(null);
+        setMarketAgentSelectedRunId(null);
+      }
+      return {
+        snapshotResult,
+        providerResult,
+        driverResult,
+        replayResult,
+        monitorResult
+      };
+    },
+    [
+      refreshMarketAgentDriverAttention,
+      refreshMarketAgentEvidence,
+      refreshMarketAgentMonitorStatus,
+      refreshMarketAgentProviderHealth,
+      refreshMarketAgentReplay,
+      selectPreferredMarketAgentRunId,
+      refreshMarketAgentSnapshot
+    ]
+  );
+
+  const refreshMarketAgentEvidenceSection = useCallback(async () => {
+    const [snapshotResult, providerResult, driverResult] = await Promise.all([
+      refreshMarketAgentSnapshot(),
+      refreshMarketAgentProviderHealth(),
+      refreshMarketAgentDriverAttention()
+    ]);
+    const preferredRunId = selectPreferredMarketAgentRunId(
+      null,
+      driverResult,
+      providerResult,
+      null
+    );
+    if (preferredRunId) {
+      await refreshMarketAgentEvidence(preferredRunId);
+    } else {
+      setMarketAgentEvidence(null);
+      setMarketAgentSelectedRunId(null);
+    }
+    return { snapshotResult, providerResult, driverResult };
+  }, [
+    refreshMarketAgentDriverAttention,
+    refreshMarketAgentEvidence,
+    refreshMarketAgentProviderHealth,
+    refreshMarketAgentSnapshot,
+    selectPreferredMarketAgentRunId
+  ]);
+
+  const refreshMarketAgentDashboardContext = useCallback(async (options?: { forceReplay?: boolean }) => {
+    const [
+      snapshotResult,
+      providerResult,
+      liveQuoteResult,
+      driverResult,
+      monitorResult
+    ] = await Promise.all([
+      refreshMarketAgentSnapshot(),
+      refreshMarketAgentProviderHealth(),
+      refreshMarketAgentLiveQuote(),
+      refreshMarketAgentDriverAttention(),
+      refreshMarketAgentMonitorStatus()
+    ]);
+    const preferredRunId = selectPreferredMarketAgentRunId(
+      null,
+      driverResult,
+      providerResult,
+      monitorResult
+    );
+    if (preferredRunId) {
+      void refreshMarketAgentEvidence(preferredRunId);
+    } else {
+      setMarketAgentEvidence(null);
+      setMarketAgentSelectedRunId(null);
+    }
+    void refreshMarketAgentDashboardReplayInBackground({
+      driverResult,
+      providerResult,
+      monitorResult,
+      force: options?.forceReplay
+    });
+    return { snapshotResult, providerResult, liveQuoteResult, driverResult, replayResult: null, monitorResult };
+  }, [
+    refreshMarketAgentDriverAttention,
+    refreshMarketAgentDashboardReplayInBackground,
+    refreshMarketAgentEvidence,
+    refreshMarketAgentLiveQuote,
+    refreshMarketAgentMonitorStatus,
+    refreshMarketAgentProviderHealth,
+    refreshMarketAgentSnapshot,
+    selectPreferredMarketAgentRunId
+  ]);
+
+  const refreshMarketAgentLiveShell = useCallback(async (options?: { forceReplay?: boolean }) => {
+    return refreshMarketAgentDashboardContext(options);
+  }, [refreshMarketAgentDashboardContext]);
+
+  const refreshMarketAgentConfigShell = useCallback(async () => {
+    const [
+      providerConfigResult,
+      telegramConfigResult,
+      llmConfigResult,
+      providerResult,
+      monitorResult
+    ] = await Promise.all([
+      refreshMarketAgentProviderConfig(),
+      refreshMarketAgentTelegramConfig(),
+      refreshMarketAgentLLMConfig(),
+      refreshMarketAgentProviderHealth(),
+      refreshMarketAgentMonitorStatus()
+    ]);
+    return {
+      providerConfigResult,
+      telegramConfigResult,
+      llmConfigResult,
+      providerResult,
+      monitorResult
+    };
+  }, [
+    refreshMarketAgentLLMConfig,
+    refreshMarketAgentMonitorStatus,
+    refreshMarketAgentProviderConfig,
+    refreshMarketAgentProviderHealth,
+    refreshMarketAgentTelegramConfig
+  ]);
+
+  const saveMarketAgentProviderConfig = useCallback(
+    async (ctrader: MarketAgentProviderConfigInput) => {
+      const next = await withTimeout(
+        backend.saveMarketAgentProviderConfig(ctrader),
+        10000,
+        "backend.saveMarketAgentProviderConfig()"
+      );
+      setMarketAgentProviderConfig(next);
+      await refreshMarketAgentProviderHealth();
+      return next;
+    },
+    [refreshMarketAgentProviderHealth, withTimeout]
+  );
+
+  const saveMarketAgentTelegramConfig = useCallback(
+    async (telegram: MarketAgentTelegramConfigInput) => {
+      const next = await withTimeout(
+        backend.saveMarketAgentTelegramConfig(telegram),
+        10000,
+        "backend.saveMarketAgentTelegramConfig()"
+      );
+      setMarketAgentTelegramConfig(next);
+      return next;
+    },
+    [withTimeout]
+  );
+
+  const saveMarketAgentLLMConfig = useCallback(
+    async (llm: MarketAgentLLMConfigInput) => {
+      const next = await withTimeout(
+        backend.saveMarketAgentLLMConfig(llm),
+        10000,
+        "backend.saveMarketAgentLLMConfig()"
+      );
+      setMarketAgentLLMConfig(next);
+      return next;
+    },
+    [withTimeout]
+  );
+
+  const runMarketAgentLLMAction = useCallback(
+    async (
+      action: (llm: MarketAgentLLMConfigInput) => Promise<MarketAgentLLMActionResponse>,
+      llm: MarketAgentLLMConfigInput
+    ) => {
+      const result = await withTimeout(action(llm), 12000, "market-agent-llm-action");
+      if (result.llm) {
+        setMarketAgentLLMConfig({
+          ok: true,
+          available: true,
+          llm: result.llm
+        });
+      } else {
+        await refreshMarketAgentLLMConfig();
+      }
+      return result;
+    },
+    [refreshMarketAgentLLMConfig, withTimeout]
+  );
+
+  const runMarketAgentTelegramAction = useCallback(
+    async (
+      action: (telegram: MarketAgentTelegramConfigInput) => Promise<MarketAgentTelegramActionResponse>,
+      telegram: MarketAgentTelegramConfigInput
+    ) => {
+      const result = await withTimeout(action(telegram), 12000, "market-agent-telegram-action");
+      if (result.telegram) {
+        setMarketAgentTelegramConfig({
+          ok: true,
+          available: true,
+          telegram: result.telegram
+        });
+      } else {
+        await refreshMarketAgentTelegramConfig();
+      }
+      return result;
+    },
+    [refreshMarketAgentTelegramConfig, withTimeout]
+  );
+
+  const runMarketAgentProviderAction = useCallback(
+    async (
+      action: (ctrader: MarketAgentProviderConfigInput) => Promise<MarketAgentProviderActionResponse>,
+      ctrader: MarketAgentProviderConfigInput
+    ) => {
+      const result = await withTimeout(action(ctrader), 12000, "market-agent-provider-action");
+      await refreshMarketAgentProviderHealth();
+      return result;
+    },
+    [refreshMarketAgentProviderHealth, withTimeout]
+  );
+
+  const runMarketAgentMonitorAction = useCallback(
+    async (action: () => Promise<MarketAgentMonitorStatusResponse>) => {
+      const result = await withTimeout(action(), 15000, "market-agent-monitor-action");
+      setMarketAgentMonitorStatus(result);
+      const [, providerResult, driverResult, replayResult] = await Promise.all([
+        refreshMarketAgentSnapshot(),
+        refreshMarketAgentProviderHealth(),
+        refreshMarketAgentDriverAttention(),
+        refreshMarketAgentReplay(marketAgentRangeStart, marketAgentRangeEnd, "dashboard")
+      ]);
+      const preferredRunId = selectPreferredMarketAgentRunId(
+        replayResult,
+        driverResult,
+        providerResult,
+        result
+      );
+      if (preferredRunId) {
+        await refreshMarketAgentEvidence(preferredRunId);
+      } else {
+        setMarketAgentEvidence(null);
+        setMarketAgentSelectedRunId(null);
+      }
+      return result;
+    },
+    [
+      marketAgentRangeEnd,
+      marketAgentRangeStart,
+      refreshMarketAgentDriverAttention,
+      refreshMarketAgentEvidence,
+      refreshMarketAgentProviderHealth,
+      refreshMarketAgentReplay,
+      refreshMarketAgentSnapshot,
+      selectPreferredMarketAgentRunId,
+      withTimeout
+    ]
+  );
 
   const refresh = async (): Promise<Snapshot | null> => {
     if (refreshInFlightRef.current) {
@@ -331,7 +1201,7 @@ export default function App() {
       // a stable snapshot (especially in ui-check where we patch the backend snapshot).
       while (true) {
         refreshPendingRef.current = false;
-        refreshTokenRef.current += 1;
+        refreshCycleRef.current += 1;
 
         let resolvedSnapshot: Snapshot | null = null;
         try {
@@ -478,7 +1348,10 @@ export default function App() {
               setInitState("ready");
               setInitError("");
               hasReachedReadyRef.current = true;
-              backend.frontendBootComplete().catch(() => {});
+              if (!frontendBootCompleteSentRef.current) {
+                frontendBootCompleteSentRef.current = true;
+                backend.frontendBootComplete().catch(() => {});
+              }
         } catch (err) {
           const message = err instanceof Error ? err.message : "Initialization failed";
           if (isUiCheckRuntime) {
@@ -511,15 +1384,20 @@ export default function App() {
   };
 
   const handleInitRetry = useCallback(() => {
-    refreshTokenRef.current += 1;
+    refreshCycleRef.current += 1;
     refreshInFlightRef.current = false;
     refreshPendingRef.current = false;
     hasReachedReadyRef.current = false;
+    frontendBootCompleteSentRef.current = false;
     setInitState("loading");
     setInitError("");
     setConnecting(isWebview());
     void refresh();
   }, []);
+
+  useEffect(() => {
+    mainViewRef.current = mainView;
+  }, [mainView]);
 
   useEffect(() => {
     if (initOverlayTimerRef.current) {
@@ -619,6 +1497,7 @@ export default function App() {
     window.addEventListener("wheel", recordInput, { passive: true });
     window.addEventListener("keydown", recordInput);
     const onWakeup = () => {
+      if (mainViewRef.current === "market-agent") return;
       void refreshRef.current();
     };
     window.addEventListener("xauusd:wakeup", onWakeup);
@@ -910,17 +1789,41 @@ export default function App() {
   }, [isUiCheckRuntime, openAlertModal]);
 
   useEffect(() => {
+    if (isUiCheckRuntime) return;
+    if (!isWebview()) return;
+    let unlisten: null | (() => void) = null;
+    let cancelled = false;
+
+    const start = async () => {
+      const un = await tauriListen<MarketAgentOllamaPullProgress>(
+        "market-agent:ollama-pull-progress",
+        (payload) => setMarketAgentOllamaPullProgress(payload)
+      );
+      if (cancelled && un) {
+        un();
+        return;
+      }
+      unlisten = un;
+    };
+    void start();
+    return () => {
+      cancelled = true;
+      if (unlisten) unlisten();
+    };
+  }, [isUiCheckRuntime]);
+
+  useEffect(() => {
     if (initState !== "ready" || isUiCheckRuntime) return;
     let timer: number | null = null;
     let cancelled = false;
 
     const schedule = () => {
       if (cancelled) return;
-      // Always refresh on a short cadence so backend-driven alerts (e.g. GitHub token)
-      // show immediately even when the WebView doesn't receive focus until click (WebView2 quirk).
-      const delay = 1200;
+      const delay = mainViewRef.current === "market-agent" ? 15000 : 5000;
       timer = window.setTimeout(() => {
-        void refreshRef.current();
+        if (mainViewRef.current !== "market-agent") {
+          void refreshRef.current();
+        }
         schedule();
       }, delay);
     };
@@ -936,10 +1839,11 @@ export default function App() {
   useEffect(() => {
     if (initState !== "ready" || isUiCheckRuntime) return;
     const onFocus = () => {
+      if (mainViewRef.current === "market-agent") return;
       void refreshRef.current();
     };
     const onVisibility = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible" && mainViewRef.current !== "market-agent") {
         void refreshRef.current();
       }
     };
@@ -2565,6 +3469,13 @@ export default function App() {
 
   useEffect(() => {
     if (initState !== "ready") return;
+    if (mainViewRef.current === "market-agent") {
+      if (eventRetryTimerRef.current) {
+        window.clearTimeout(eventRetryTimerRef.current);
+        eventRetryTimerRef.current = null;
+      }
+      return;
+    }
     if (snapshot.events.length > 1) {
       eventRetryRef.current = 0;
       if (eventRetryTimerRef.current) {
@@ -2579,9 +3490,17 @@ export default function App() {
       window.clearTimeout(eventRetryTimerRef.current);
     }
     eventRetryTimerRef.current = window.setTimeout(() => {
-      refresh();
+      if (mainViewRef.current !== "market-agent") {
+        refresh();
+      }
     }, 3000);
-  }, [snapshot.events.length, initState]);
+    return () => {
+      if (eventRetryTimerRef.current) {
+        window.clearTimeout(eventRetryTimerRef.current);
+        eventRetryTimerRef.current = null;
+      }
+    };
+  }, [snapshot.events.length, initState, mainView]);
 
   useEffect(() => {
     allowThemeAnimationRef.current = true;
@@ -3295,13 +4214,211 @@ export default function App() {
     }, 400);
   }, []);
 
+  const openMarketAgentView = useCallback(() => {
+    setMarketAgentActiveSection("live");
+    marketAgentEntryRefreshKeyRef.current += 1;
+    const refreshKey = marketAgentEntryRefreshKeyRef.current;
+    setMainView("market-agent");
+    marketAgentManualRefreshAtRef.current = Date.now();
+    runAfterFirstPaint(() => {
+      if (marketAgentEntryRefreshKeyRef.current !== refreshKey) return;
+      void refreshMarketAgentLiveShell({ forceReplay: true });
+    }, 120);
+  }, [refreshMarketAgentLiveShell]);
+
+  const openCalendarView = useCallback(() => {
+    setMainView("calendar");
+  }, []);
+
+  const handleMarketAgentPresetChange = useCallback(
+    (preset: string) => {
+      const typedPreset: MarketAgentRangePreset =
+        preset === "month" ? "month" : "day";
+      const next = buildRangeWindow(typedPreset);
+      setMarketAgentRangePreset(typedPreset);
+      setMarketAgentRangeStart(next.startIso);
+      setMarketAgentRangeEnd(next.endIso);
+      setMarketAgentRangeStartInput(next.startInput);
+      setMarketAgentRangeEndInput(next.endInput);
+      void refreshMarketAgentReplay(next.startIso, next.endIso, "full");
+    },
+    [refreshMarketAgentReplay]
+  );
+
+  const handleMarketAgentApplyRange = useCallback(() => {
+    const startIso = toOffsetIso(marketAgentRangeStartInput);
+    const endIso = toOffsetIso(marketAgentRangeEndInput);
+    if (!startIso || !endIso) return;
+    setMarketAgentRangeStart(startIso);
+    setMarketAgentRangeEnd(endIso);
+    void refreshMarketAgentReplay(startIso, endIso, "full");
+  }, [marketAgentRangeEndInput, marketAgentRangeStartInput, refreshMarketAgentReplay]);
+
+  useLayoutEffect(() => {
+    const updateViewportFit = () => {
+      const next = getAppViewportFit();
+      setAppViewportFit((current) => {
+        const unchanged =
+          Math.abs(current.scale - next.scale) < 0.0001 &&
+          Math.abs(current.width - next.width) < 0.25 &&
+          Math.abs(current.height - next.height) < 0.25 &&
+          Math.abs(current.designHeight - next.designHeight) < 0.25 &&
+          Math.abs(current.offsetX - next.offsetX) < 0.25 &&
+          Math.abs(current.offsetY - next.offsetY) < 0.25;
+        return unchanged ? current : next;
+      });
+    };
+
+    updateViewportFit();
+    window.addEventListener("resize", updateViewportFit);
+    window.visualViewport?.addEventListener("resize", updateViewportFit);
+    return () => {
+      window.removeEventListener("resize", updateViewportFit);
+      window.visualViewport?.removeEventListener("resize", updateViewportFit);
+    };
+  }, []);
+
+  const appViewportStyle = useMemo(
+    () =>
+      ({
+        "--app-fit-scale": appViewportFit.scale.toString(),
+        "--app-design-height": `${appViewportFit.designHeight}px`,
+        "--app-fit-x": `${appViewportFit.offsetX}px`,
+        "--app-fit-y": `${appViewportFit.offsetY}px`,
+        "--app-fit-layout-x": `${
+          appViewportFit.scale > 0 ? appViewportFit.offsetX / appViewportFit.scale : 0
+        }px`,
+        "--app-fit-layout-y": `${
+          appViewportFit.scale > 0 ? appViewportFit.offsetY / appViewportFit.scale : 0
+        }px`,
+        "--app-fit-width": `${appViewportFit.width}px`,
+        "--app-fit-height": `${appViewportFit.height}px`
+      }) as CSSProperties,
+    [appViewportFit]
+  );
+
   const historySelectionLabel = historySelection
     ? `${historySelection.cur || "--"} ${historySelection.event}`.trim()
     : "";
 
+  useEffect(() => {
+    if (!activityOpen) return;
+    void refreshMarketAgentSnapshot();
+  }, [activityOpen, refreshMarketAgentSnapshot]);
+
+  useEffect(() => {
+    if (showInitOverlay) return;
+    return runAfterFirstPaint(() => {
+      void loadMarketAgentPage();
+    }, 50);
+  }, [showInitOverlay]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    if (Date.now() - marketAgentManualRefreshAtRef.current < 1000) return;
+    const refreshKey = marketAgentEntryRefreshKeyRef.current;
+    return runAfterFirstPaint(() => {
+      if (marketAgentEntryRefreshKeyRef.current !== refreshKey) return;
+      void refreshMarketAgentLiveShell({ forceReplay: true });
+    }, 450);
+  }, [mainView, refreshMarketAgentLiveShell]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    if (marketAgentActiveSection !== "live") return;
+    let cancelled = false;
+    let dashboardRefreshRunning = false;
+    const timer = window.setInterval(() => {
+      if (cancelled) return;
+      void refreshMarketAgentLiveQuote();
+    }, 1000);
+    const dashboardTimer = window.setInterval(() => {
+      if (cancelled || dashboardRefreshRunning) return;
+      dashboardRefreshRunning = true;
+      void refreshMarketAgentDashboardContext().finally(() => {
+        dashboardRefreshRunning = false;
+      });
+    }, 15000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      window.clearInterval(dashboardTimer);
+    };
+  }, [
+    mainView,
+    marketAgentActiveSection,
+    refreshMarketAgentDashboardContext,
+    refreshMarketAgentLiveQuote
+  ]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    if (marketAgentActiveSection !== "drivers") return;
+    return runAfterDelay(250, () => {
+      void refreshMarketAgentDashboardContext();
+    });
+  }, [
+    mainView,
+    marketAgentActiveSection,
+    refreshMarketAgentDashboardContext
+  ]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    if (marketAgentActiveSection !== "providers") return;
+    return runAfterDelay(250, () => {
+      void refreshMarketAgentProviderHealth();
+    });
+  }, [
+    mainView,
+    marketAgentActiveSection,
+    refreshMarketAgentProviderHealth
+  ]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    if (!["replay", "activity", "alerts"].includes(marketAgentActiveSection)) return;
+    return runAfterDelay(250, () => {
+      if (marketAgentActiveSection === "alerts") {
+        void refreshMarketAgentTelegramConfig();
+      }
+      void refreshMarketAgentWorkspace(
+        marketAgentRangeStart,
+        marketAgentRangeEnd,
+        { includeActivity: marketAgentActiveSection === "activity" }
+      );
+    });
+  }, [
+    mainView,
+    marketAgentActiveSection,
+    marketAgentRangeEnd,
+    marketAgentRangeStart,
+    refreshMarketAgentTelegramConfig,
+    refreshMarketAgentWorkspace
+  ]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    if (marketAgentActiveSection !== "evidence") return;
+    return runAfterDelay(250, () => {
+      void refreshMarketAgentEvidenceSection();
+    });
+  }, [mainView, marketAgentActiveSection, refreshMarketAgentEvidenceSection]);
+
+  useEffect(() => {
+    if (mainView !== "market-agent") return;
+    if (marketAgentActiveSection !== "sources") return;
+    return runAfterDelay(250, () => {
+      void refreshMarketAgentConfigShell();
+    });
+  }, [mainView, marketAgentActiveSection, refreshMarketAgentConfigShell]);
 
   return (
-    <div className="app" data-qa="qa:app-shell">
+    <div
+      className={`app${mainView === "market-agent" ? " app-market-agent" : ""}`}
+      data-qa="qa:app-shell"
+      style={appViewportStyle}
+    >
       {showInitOverlay ? (
         <InitOverlay state={initState} error={initError} onRetry={handleInitRetry} />
       ) : null}
@@ -3316,71 +4433,172 @@ export default function App() {
         syncState={syncState}
         resolvedTheme={resolvedTheme}
         themeMode={themeMode}
+        activeView={mainView}
         onPull={handlePull}
         onSync={handleSync}
         onOpenSettings={openSettings}
         onToggleTheme={toggleTheme}
         onOpenPaths={openPathsInSettings}
+        onOpenCalendar={openCalendarView}
+        onOpenMarketAgent={openMarketAgentView}
+        onPreloadMarketAgent={() => {
+          void loadMarketAgentPage();
+        }}
       />
 
-      <main className="main">
-        <div
-          className="split-view"
-          ref={splitRef}
-          style={{
-            gridTemplateColumns: `minmax(0, ${splitRatio.toFixed(
-              4
-            )}fr) ${splitGutterPx}px minmax(0, ${(1 - splitRatio).toFixed(4)}fr)`
-          }}
-        >
-          <div className="split-pane">
-            <NextEvents
-              events={snapshot.events}
-              loading={snapshot.calendarStatus === "loading"}
-              downloading={snapshot.calendarStatus === "downloading"}
-              currency={currency}
-              currencyOptions={currencyOptions}
-              onCurrencyChange={handleCurrency}
-              impactTone={impactTone}
-              impactFilter={impactFilter}
-              onImpactFilterChange={setImpactFilter}
-              onOpenHistory={(item) =>
-                openEventHistory({
-                  event: item.event,
-                  cur: item.cur,
-                  dtUtc: item.dtUtc,
-                  impact: item.impact,
-                  actual: item.actual,
-                  forecast: item.forecast,
-                  previous: item.previous
+      <main className={`main${mainView === "market-agent" ? " main-market-agent" : ""}`}>
+        {mainView === "market-agent" ? (
+          <Suspense fallback={<div className="market-agent-route-loading" aria-label="Loading Market Agent" />}>
+            <MarketAgentPage
+              activeSection={marketAgentActiveSection}
+              snapshot={marketAgentSnapshot}
+              providerConfig={marketAgentProviderConfig}
+              telegramConfig={marketAgentTelegramConfig}
+              llmConfig={marketAgentLLMConfig}
+              localAiSetup={marketAgentLocalAISetup}
+              localAiPullProgress={marketAgentOllamaPullProgress}
+              liveQuote={marketAgentLiveQuote}
+              providerHealth={marketAgentProviderHealth}
+              driverAttention={marketAgentDriverAttention}
+              replay={marketAgentReplay}
+              selectedEvidence={marketAgentEvidence}
+              monitorStatus={marketAgentMonitorStatus}
+              selectedMonitorRunId={marketAgentSelectedRunId}
+              rangePreset={marketAgentRangePreset}
+              rangeStartInput={marketAgentRangeStartInput}
+              rangeEndInput={marketAgentRangeEndInput}
+              onPresetChange={handleMarketAgentPresetChange}
+              onRangeStartChange={setMarketAgentRangeStartInput}
+              onRangeEndChange={setMarketAgentRangeEndInput}
+              onApplyRange={handleMarketAgentApplyRange}
+              onSectionChange={setMarketAgentActiveSection}
+              onSelectRun={(monitorRunId) => {
+                void refreshMarketAgentEvidence(monitorRunId);
+              }}
+              onSaveProviderConfig={(ctrader) => void saveMarketAgentProviderConfig(ctrader)}
+              onClearProviderConfig={() => void backend.clearCTraderConfig().then(setMarketAgentProviderConfig)}
+              onTestCTraderConnection={(ctrader) =>
+                runMarketAgentProviderAction(backend.testCTraderConnection, ctrader)
+              }
+              onResolveCTraderSymbol={(ctrader) =>
+                runMarketAgentProviderAction(backend.resolveCTraderSymbol, ctrader)
+              }
+              onGetCTraderQuoteTest={(ctrader) =>
+                runMarketAgentProviderAction(backend.getCTraderQuoteTest, ctrader)
+              }
+              onStartCTraderConnect={(ctrader) =>
+                backend.startCTraderConnect(ctrader).then(async (result) => {
+                  await refreshMarketAgentProviderConfig();
+                  const refreshedHealth = await refreshMarketAgentProviderHealth();
+                  if (result.provider_health) {
+                    setMarketAgentLiveQuote({
+                      ok: result.ok,
+                      running: result.status === "live_feed_ready",
+                      phase: result.status,
+                      message: result.message,
+                      quote: (result.quote as MarketAgentLiveQuoteResponse["quote"]) ?? null,
+                      provider_health: result.provider_health,
+                      status: (result.live_stream as MarketAgentLiveQuoteResponse["status"]) ?? null
+                    });
+                    const otherItems = (refreshedHealth?.items ?? []).filter((item) => item.provider_key !== "xauusd");
+                    setMarketAgentProviderHealth({
+                      ok: true,
+                      available: true,
+                      items: [{ provider_key: "xauusd", ...result.provider_health }, ...otherItems]
+                    });
+                  }
+                  return result;
                 })
               }
-            />
-          </div>
-          <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
-          <div className="split-pane">
-          <HistoryPanel
-              events={snapshot.pastEvents}
-              loading={snapshot.calendarStatus === "loading"}
-              downloading={snapshot.calendarStatus === "downloading"}
-              calendarTimezoneMode={settings.calendarTimezoneMode}
-              calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
-              impactTone={impactTone}
-              impactFilter={impactFilter}
-              onOpenHistory={(item) =>
-                openEventHistory({
-                  event: item.event,
-                  cur: item.cur,
-                  dtUtc: item.dtUtc,
-                  impact: item.impact,
-                  actual: item.actual,
-                  forecast: item.forecast,
-                  previous: item.previous
+              onTestCTraderBackfill={(ctrader) =>
+                runMarketAgentProviderAction(backend.testCTraderBackfill, ctrader)
+              }
+              onSaveTelegramConfig={(telegram) => saveMarketAgentTelegramConfig(telegram)}
+              onTestTelegramMessage={(telegram) =>
+                runMarketAgentTelegramAction(backend.testMarketAgentTelegram, telegram)
+              }
+              onSaveLLMConfig={(llm) => saveMarketAgentLLMConfig(llm)}
+              onTestLLMConnection={(llm) =>
+                runMarketAgentLLMAction(backend.testMarketAgentLLMConnection, llm)
+              }
+              onTestLLMJsonResponse={(llm) =>
+                runMarketAgentLLMAction(backend.testMarketAgentLLMJsonResponse, llm)
+              }
+              onDetectLocalAI={() => refreshMarketAgentLocalAISetup()}
+              onInstallRecommendedModel={(model) =>
+                backend.pullOllamaModel(model, marketAgentLLMConfig?.llm?.endpoint).then(async (result) => {
+                  await Promise.all([refreshMarketAgentLocalAISetup(), refreshMarketAgentLLMConfig()]);
+                  return result;
                 })
               }
+              onCancelModelDownload={(model) => backend.cancelModelDownload(model)}
+              onBenchmarkLLM={(llm) => backend.benchmarkMarketAgentLLM(llm)}
+              onApplyLLMFallbackPolicy={(payload) => backend.applyLLMFallbackPolicy(payload)}
+              onRunMonitorOnce={() => runMarketAgentMonitorAction(backend.runMarketAgentMonitorOnce)}
+              onRunBackfillRecovery={() => runMarketAgentMonitorAction(backend.runMarketAgentBackfillRecovery)}
+              onStartMonitorLoop={() => runMarketAgentMonitorAction(() => backend.startMarketAgentMonitorLoop(60))}
+              onStopMonitorLoop={() => runMarketAgentMonitorAction(backend.stopMarketAgentMonitorLoop)}
             />
+          </Suspense>
+        ) : (
+          <div
+            className="split-view"
+            ref={splitRef}
+            style={{
+              gridTemplateColumns: `minmax(0, ${splitRatio.toFixed(
+                4
+              )}fr) ${splitGutterPx}px minmax(0, ${(1 - splitRatio).toFixed(4)}fr)`
+            }}
+          >
+            <div className="split-pane">
+              <NextEvents
+                events={snapshot.events}
+                loading={snapshot.calendarStatus === "loading"}
+                downloading={snapshot.calendarStatus === "downloading"}
+                currency={currency}
+                currencyOptions={currencyOptions}
+                onCurrencyChange={handleCurrency}
+                impactTone={impactTone}
+                impactFilter={impactFilter}
+                onImpactFilterChange={setImpactFilter}
+                onOpenHistory={(item) =>
+                  openEventHistory({
+                    event: item.event,
+                    cur: item.cur,
+                    dtUtc: item.dtUtc,
+                    impact: item.impact,
+                    actual: item.actual,
+                    forecast: item.forecast,
+                    previous: item.previous
+                  })
+                }
+              />
+            </div>
+            <div className="split-divider" onMouseDown={startSplitDrag} data-qa="qa:split:divider" />
+            <div className="split-pane">
+            <HistoryPanel
+                events={snapshot.pastEvents}
+                loading={snapshot.calendarStatus === "loading"}
+                downloading={snapshot.calendarStatus === "downloading"}
+                calendarTimezoneMode={settings.calendarTimezoneMode}
+                calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
+                impactTone={impactTone}
+                impactFilter={impactFilter}
+                onOpenHistory={(item) =>
+                  openEventHistory({
+                    event: item.event,
+                    cur: item.cur,
+                    dtUtc: item.dtUtc,
+                    impact: item.impact,
+                    actual: item.actual,
+                    forecast: item.forecast,
+                    previous: item.previous
+                  })
+                }
+              />
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       <div className="footer-row">
@@ -3444,21 +4662,25 @@ export default function App() {
         </div>
       </div>
 
-      <EventHistoryModal
-        isOpen={historyOpen}
-        loading={historyLoading}
-        error={historyError}
-        selectionLabel={historySelectionLabel}
-        selectionImpact={historySelection?.impact}
-        selectionActual={historySelection?.actual}
-        selectionForecast={historySelection?.forecast}
-        selectionPrevious={historySelection?.previous}
-        data={historyData}
-        anchorDtUtc={historyAnchorDtUtc}
-        calendarTimezoneMode={settings.calendarTimezoneMode}
-        calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
-        onClose={closeHistoryModal}
-      />
+      {historyOpen ? (
+        <Suspense fallback={null}>
+          <EventHistoryModal
+            isOpen={historyOpen}
+            loading={historyLoading}
+            error={historyError}
+            selectionLabel={historySelectionLabel}
+            selectionImpact={historySelection?.impact}
+            selectionActual={historySelection?.actual}
+            selectionForecast={historySelection?.forecast}
+            selectionPrevious={historySelection?.previous}
+            data={historyData}
+            anchorDtUtc={historyAnchorDtUtc}
+            calendarTimezoneMode={settings.calendarTimezoneMode}
+            calendarUtcOffsetMinutes={settings.calendarUtcOffsetMinutes}
+            onClose={closeHistoryModal}
+          />
+        </Suspense>
+      ) : null}
 
       <SettingsModal
         isOpen={settingsOpen}

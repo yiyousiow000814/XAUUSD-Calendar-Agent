@@ -1,0 +1,782 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, replace
+from datetime import datetime
+import json
+from pathlib import Path
+from typing import Any
+
+from ..config import CTraderCliConfig, MarketAgentConfig
+from ..models import ProviderHealth
+from ..provider_health import build_provider_health
+from .base import CalendarProvider, MarketDataProvider, NewsProvider, RelatedAssetsProvider
+from .ctrader_provider import CTraderProvider
+from .forex_factory_provider import ForexFactoryProvider
+from .rss_provider import RSSNewsProvider
+from .trading_economics import TradingEconomicsQuoteProvider, TradingEconomicsUS2YProvider
+from .yahoo_chart import YahooChartProvider
+
+
+_RELATED_SYMBOLS = {
+    "dxy": "DX-Y.NYB",
+    "us10y": "^TNX",
+    "wti": "CL=F",
+    "brent": "BZ=F",
+    "vix": "^VIX",
+    "spx": "^GSPC",
+    "nasdaq": "NQ=F",
+}
+
+_SPOT_LIVE_MAX_AGE_SECONDS = 300
+
+
+def _parse_provider_timestamp(raw: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def _spot_quote_age_seconds(health: ProviderHealth, anchor_time: datetime) -> float | None:
+    timestamp = _parse_provider_timestamp(health.data_timestamp)
+    if timestamp is None:
+        return None
+    return (anchor_time - timestamp).total_seconds()
+
+
+def _normalize_spot_freshness(
+    rows: list[dict[str, Any]],
+    health: ProviderHealth,
+    anchor_time: datetime,
+) -> tuple[list[dict[str, Any]], ProviderHealth]:
+    if health.source_type not in {"spot", "spot_snapshot"} or not health.is_available:
+        return rows, health
+    age_seconds = _spot_quote_age_seconds(health, anchor_time)
+    if age_seconds is not None and age_seconds <= _SPOT_LIVE_MAX_AGE_SECONDS:
+        return rows, health
+
+    stale_reason = health.stale_reason
+    if not stale_reason:
+        if age_seconds is None:
+            stale_reason = "cTrader quote timestamp is invalid; treating the last quote as market-closed context."
+        else:
+            stale_reason = (
+                f"cTrader quote is {int(age_seconds)}s old; market may be closed or feed is paused."
+            )
+    stale_rows = [
+        {
+            **row,
+            "data_mode": "stale",
+            "is_stale": True,
+            "stale_reason": stale_reason,
+        }
+        for row in rows
+    ]
+    return stale_rows, replace(
+        health,
+        data_mode="stale",
+        is_stale=True,
+        stale_reason=stale_reason,
+    )
+
+
+@dataclass(frozen=True)
+class ProviderRouterResult:
+    provider_health: dict[str, ProviderHealth]
+    market_price_bars: list[dict[str, Any]]
+    related_asset_bars: list[dict[str, Any]]
+    news_rows: list[dict[str, Any]]
+    calendar_rows: list[dict[str, Any]]
+
+
+class ProviderRouter:
+    def __init__(
+        self,
+        *,
+        market_provider: MarketDataProvider | None = None,
+        related_assets_provider: RelatedAssetsProvider | None = None,
+        news_provider: NewsProvider | None = None,
+        calendar_provider: CalendarProvider | None = None,
+        csv_price_path: Path | None = None,
+        csv_related_assets_path: Path | None = None,
+        csv_related_assets_dir: Path | None = None,
+        csv_calendar_dir: Path | None = None,
+        yahoo_fixture_dir: Path | None = None,
+        rss_feeds: list[str] | None = None,
+        yahoo_enabled: bool = True,
+        csv_fallback_enabled: bool = False,
+        trading_economics_us2y_enabled: bool = True,
+        trading_economics_us2y_cache_path: Path | None = None,
+        trading_economics_quotes_cache_dir: Path | None = None,
+        ctrader_saved_snapshot_path: Path | None = None,
+        ctrader_provider: CTraderProvider | None = None,
+        calendar_lookback_minutes: int = 60,
+        calendar_forward_minutes: int = 120,
+    ) -> None:
+        self.market_provider = market_provider
+        self.related_assets_provider = related_assets_provider
+        self.news_provider = news_provider
+        self.calendar_provider = calendar_provider
+        self.csv_price_path = csv_price_path
+        self.csv_related_assets_path = csv_related_assets_path
+        self.csv_related_assets_dir = csv_related_assets_dir
+        self.csv_calendar_dir = csv_calendar_dir
+        self.yahoo_fixture_dir = yahoo_fixture_dir
+        self.rss_feeds = rss_feeds or []
+        self.yahoo_enabled = yahoo_enabled
+        self.csv_fallback_enabled = csv_fallback_enabled
+        self.trading_economics_us2y_enabled = trading_economics_us2y_enabled
+        self.trading_economics_us2y_cache_path = trading_economics_us2y_cache_path
+        self.trading_economics_quotes_cache_dir = trading_economics_quotes_cache_dir
+        self.ctrader_saved_snapshot_path = ctrader_saved_snapshot_path
+        self.calendar_lookback_minutes = int(calendar_lookback_minutes)
+        self.calendar_forward_minutes = int(calendar_forward_minutes)
+        if ctrader_provider is None:
+            default_root = (
+                Path(ctrader_saved_snapshot_path).resolve().parent.parent
+                if ctrader_saved_snapshot_path is not None
+                else Path.cwd()
+            )
+            ctrader_provider = CTraderProvider(
+                cli_config=CTraderCliConfig.default(default_root),
+                saved_snapshot_path=ctrader_saved_snapshot_path,
+            )
+        self.ctrader_provider = ctrader_provider
+        self.last_market_provider_meta: dict[str, Any] = {
+            "selected_market_provider": "unavailable",
+            "provider_chain_status": [],
+            "fallback_reason": "",
+        }
+
+    @classmethod
+    def from_config(cls, config: MarketAgentConfig) -> "ProviderRouter":
+        return cls(
+            market_provider=None,
+            related_assets_provider=None,
+            news_provider=RSSNewsProvider(config.rss_feeds) if config.rss_feeds else None,
+            calendar_provider=ForexFactoryProvider(
+                fixture_path=config.forex_factory_fixture_path,
+                source_url=config.forex_factory_source_url or None,
+                lookback_minutes=config.calendar_lookback_minutes,
+                forward_minutes=config.calendar_forward_minutes,
+            )
+            if config.forex_factory_fixture_path is not None or config.forex_factory_source_url
+            else None,
+            csv_price_path=config.price_data_path,
+            csv_related_assets_path=config.related_assets_path,
+            csv_related_assets_dir=config.related_assets_dir,
+            csv_calendar_dir=config.calendar_dir,
+            yahoo_fixture_dir=config.yahoo_fixture_dir,
+            rss_feeds=config.rss_feeds,
+            yahoo_enabled=config.yahoo_enabled,
+            csv_fallback_enabled=config.csv_fallback_enabled,
+            trading_economics_us2y_enabled=config.trading_economics_us2y_enabled,
+            trading_economics_us2y_cache_path=config.trading_economics_us2y_cache_path,
+            trading_economics_quotes_cache_dir=config.trading_economics_quotes_cache_dir,
+            ctrader_saved_snapshot_path=config.ctrader_saved_snapshot_path,
+            ctrader_provider=CTraderProvider.from_market_agent_config(config),
+            calendar_lookback_minutes=config.calendar_lookback_minutes,
+            calendar_forward_minutes=config.calendar_forward_minutes,
+        )
+
+    def _yahoo(self) -> YahooChartProvider:
+        return YahooChartProvider(fixture_dir=self.yahoo_fixture_dir, enabled=self.yahoo_enabled)
+
+    def _market_chain(self) -> list[Any]:
+        chain: list[Any] = []
+        chain.append(self.ctrader_provider)
+        if self.yahoo_enabled:
+            chain.append(self._yahoo())
+        if self.csv_fallback_enabled and self.csv_price_path is not None:
+            chain.append(self.csv_price_path)
+        return chain
+
+    def fetch_market_context(self, anchor_time: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        if self.market_provider is not None:
+            return self.market_provider.fetch_latest(anchor_time)
+        chain_status: list[dict[str, Any]] = []
+        stale_ctrader_rows: list[dict[str, Any]] = []
+        stale_ctrader_health: ProviderHealth | None = None
+        for candidate in self._market_chain():
+            if isinstance(candidate, Path):
+                rows, health = self._load_market_csv_fallback(candidate, anchor_time, data_mode="stale")
+                chain_status.append(self._build_chain_entry("csv_fallback", health))
+                self.last_market_provider_meta = {
+                    "selected_market_provider": "unavailable",
+                    "provider_chain_status": chain_status,
+                    "fallback_reason": "CSV fallback is debug/import only and is not used for live market conclusions.",
+                }
+                return [], build_provider_health(
+                    source="XAUUSD",
+                    source_type="provider_interface",
+                    data_mode="unavailable",
+                    is_available=False,
+                    stale_reason="Live cTrader spot is unavailable. CSV fallback is debug/import only.",
+                    data_timestamp=anchor_time.isoformat(),
+                )
+            if candidate is self.ctrader_provider:
+                rows, health = candidate.fetch_latest(anchor_time)
+                rows, health = _normalize_spot_freshness(rows, health, anchor_time)
+                chain_status.append(self._build_chain_entry("ctrader_spot", health))
+                if health.is_available and not health.is_stale and health.data_mode == "live_seen":
+                    self.last_market_provider_meta = {
+                        "selected_market_provider": "ctrader_spot",
+                        "provider_chain_status": chain_status,
+                        "fallback_reason": "",
+                    }
+                    return self._normalize_market_rows(rows), health
+                if health.is_available and health.is_stale and health.source_type in {"spot", "spot_snapshot"}:
+                    stale_ctrader_rows = rows
+                    stale_ctrader_health = health
+            else:
+                rows, health = candidate.fetch_market_price(anchor_time)
+                chain_status.append(self._build_chain_entry("yahoo_gc_f_proxy", health))
+            if candidate is not self.ctrader_provider and health.is_available:
+                continue
+        if stale_ctrader_health is not None:
+            self.last_market_provider_meta = {
+                "selected_market_provider": "ctrader_spot_stale",
+                "provider_chain_status": chain_status,
+                "fallback_reason": "Last cTrader spot quote is stale; current driver conclusions require a fresh quote.",
+            }
+            return self._normalize_market_rows(stale_ctrader_rows), stale_ctrader_health
+        self.last_market_provider_meta = {
+            "selected_market_provider": "unavailable",
+            "provider_chain_status": chain_status,
+            "fallback_reason": self._fallback_reason(chain_status),
+        }
+        fallback_reason = self.last_market_provider_meta["fallback_reason"] or "Live XAUUSD provider is unavailable."
+        return [], build_provider_health(
+            source="XAUUSD",
+            source_type="provider_interface",
+            data_mode="unavailable",
+            is_available=False,
+            stale_reason=fallback_reason,
+            error=fallback_reason,
+            data_timestamp=anchor_time.isoformat(),
+        )
+
+    def fetch_related_assets_context(
+        self, anchor_time: datetime
+    ) -> tuple[list[dict[str, Any]], dict[str, ProviderHealth]]:
+        if self.related_assets_provider is not None:
+            return self.related_assets_provider.fetch_latest(anchor_time)
+        if self.yahoo_enabled:
+            yahoo = self._yahoo()
+            rows: list[dict[str, Any]] = []
+            health_map: dict[str, ProviderHealth] = {}
+            for key, symbol in _RELATED_SYMBOLS.items():
+                series, health = yahoo.fetch_related_asset(symbol, anchor_time)
+                te_rows, te_health = self._fetch_trading_economics_quote(key, anchor_time)
+                if (
+                    te_rows
+                    and te_health is not None
+                    and te_health.is_available
+                    and not te_health.is_stale
+                    and (not health.is_available or health.is_stale)
+                ):
+                    health = te_health
+                    series = te_rows
+                health_map[key] = health
+                rows.extend(self._normalize_related_rows(key, series, health))
+            us2y_rows, us2y_health = self._fetch_us2y_context(anchor_time)
+            rows.extend(us2y_rows)
+            health_map.update(us2y_health)
+            if health_map:
+                return rows, health_map
+        if self.csv_fallback_enabled and self.csv_related_assets_path is not None:
+            return self._load_related_assets_csv_fallback(anchor_time, data_mode="stale")
+        return [], {
+            "related": build_provider_health(
+                source="RelatedAssets",
+                source_type="provider_interface",
+                data_mode="unavailable",
+                is_available=False,
+                stale_reason="No related-asset provider configured.",
+                data_timestamp=anchor_time.isoformat(),
+            )
+        }
+
+    def fetch_news_context(self, anchor_time: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        if self.news_provider is not None:
+            return self.news_provider.fetch_latest(anchor_time)
+        if self.rss_feeds:
+            return RSSNewsProvider(self.rss_feeds).fetch_latest(anchor_time)
+        return [], build_provider_health(
+            source="News",
+            source_type="provider_interface",
+            data_mode="unavailable",
+            is_available=False,
+            stale_reason="App-managed news collector did not return headlines in this run.",
+            data_timestamp=anchor_time.isoformat(),
+        )
+
+    def fetch_calendar_context(self, anchor_time: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        if self.calendar_provider is not None:
+            return self.calendar_provider.fetch_window(anchor_time)
+        if self.csv_calendar_dir is not None and self.csv_calendar_dir.exists():
+            return self._load_calendar_csv_fallback(anchor_time, data_mode="live_seen")
+        return [], build_provider_health(
+            source="Calendar",
+            source_type="provider_interface",
+            data_mode="unavailable",
+            is_available=False,
+            stale_reason="App-managed calendar did not return events in this window.",
+            data_timestamp=anchor_time.isoformat(),
+        )
+
+    def backfill_market_context(self, start: datetime, end: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        if self.market_provider is not None:
+            return self.market_provider.backfill(start, end)
+        chain_status: list[dict[str, Any]] = []
+        for candidate in self._market_chain():
+            if isinstance(candidate, Path):
+                rows, health = self._load_market_csv_fallback(candidate, end, data_mode="backfilled")
+                self.last_market_provider_meta = {
+                    "selected_market_provider": "csv_fallback",
+                    "provider_chain_status": chain_status + [self._build_chain_entry("csv_fallback", health)],
+                    "fallback_reason": "",
+                }
+                return rows, health
+            if candidate is self.ctrader_provider:
+                try:
+                    rows, health = candidate.backfill(start, end)
+                except Exception as exc:
+                    health = build_provider_health(
+                        source="cTrader",
+                        source_type="spot",
+                        data_mode="unavailable",
+                        is_available=False,
+                        is_stale=True,
+                        stale_reason=str(exc),
+                        error=str(exc),
+                        data_timestamp=end.isoformat(),
+                    )
+                    rows = []
+                chain_status.append(self._build_chain_entry("ctrader_spot", health))
+                if health.is_available and rows:
+                    self.last_market_provider_meta = {
+                        "selected_market_provider": "ctrader_spot",
+                        "provider_chain_status": chain_status,
+                        "fallback_reason": "",
+                    }
+                    return self._normalize_market_rows(rows, data_mode_override="backfilled"), health
+            else:
+                rows, health = candidate.backfill("GC=F", start, end)
+                chain_status.append(self._build_chain_entry("yahoo_gc_f_proxy", health))
+            if candidate is not self.ctrader_provider and (health.is_available or health.data_mode in {"proxy", "stale"}):
+                self.last_market_provider_meta = {
+                    "selected_market_provider": "yahoo_gc_f_proxy",
+                    "provider_chain_status": chain_status,
+                    "fallback_reason": self._fallback_reason(chain_status),
+                }
+                return self._normalize_market_rows(rows, data_mode_override="backfilled"), health
+        self.last_market_provider_meta = {
+            "selected_market_provider": "unavailable",
+            "provider_chain_status": chain_status,
+            "fallback_reason": self._fallback_reason(chain_status),
+        }
+        return [], build_provider_health(
+            source="XAUUSD",
+            source_type="provider_interface",
+            data_mode="unavailable",
+            is_available=False,
+            stale_reason="No market backfill provider configured.",
+            data_timestamp=end.isoformat(),
+        )
+
+    def _build_chain_entry(self, provider: str, health: ProviderHealth) -> dict[str, Any]:
+        return {
+            "provider": provider,
+            "source": health.source,
+            "source_type": health.source_type,
+            "data_mode": health.data_mode,
+            "is_available": health.is_available,
+            "is_stale": health.is_stale,
+            "error": health.error,
+            "stale_reason": health.stale_reason,
+            "data_timestamp": health.data_timestamp,
+        }
+
+    def _fallback_reason(self, chain_status: list[dict[str, Any]]) -> str:
+        failures = [
+            item
+            for item in chain_status
+            if item["provider"] == "ctrader_spot"
+            and (not item["is_available"] or item["is_stale"] or item["data_mode"] == "unavailable")
+        ]
+        if not failures:
+            return ""
+        latest = failures[-1]
+        return latest["error"] or latest["stale_reason"] or "cTrader spot unavailable."
+
+    def backfill_related_assets(
+        self, start: datetime, end: datetime
+    ) -> tuple[list[dict[str, Any]], dict[str, ProviderHealth]]:
+        if self.related_assets_provider is not None:
+            return self.related_assets_provider.backfill(start, end)
+        if self.yahoo_enabled:
+            yahoo = self._yahoo()
+            rows: list[dict[str, Any]] = []
+            health_map: dict[str, ProviderHealth] = {}
+            for key, symbol in _RELATED_SYMBOLS.items():
+                series, health = yahoo.backfill(symbol, start, end)
+                health_map[key] = health
+                rows.extend(self._normalize_related_rows(key, series, health, data_mode_override="backfilled"))
+            us2y_rows, us2y_health = self._fetch_us2y_context(end, data_mode_override="backfilled")
+            rows.extend(us2y_rows)
+            health_map.update(us2y_health)
+            return rows, health_map
+        if self.csv_fallback_enabled and self.csv_related_assets_path is not None:
+            return self._load_related_assets_csv_fallback(end, data_mode="backfilled")
+        return [], {
+            "related": build_provider_health(
+                source="RelatedAssets",
+                source_type="provider_interface",
+                data_mode="unavailable",
+                is_available=False,
+                stale_reason="No related-asset backfill provider configured.",
+                data_timestamp=end.isoformat(),
+            )
+        }
+
+    def backfill_news(self, start: datetime, end: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        if self.news_provider is not None:
+            return self.news_provider.backfill(start, end)
+        if self.rss_feeds:
+            return RSSNewsProvider(self.rss_feeds).backfill(start, end)
+        return [], build_provider_health(
+            source="News",
+            source_type="provider_interface",
+            data_mode="unavailable",
+            is_available=False,
+            stale_reason="App-managed news collector has no backfill data for this window.",
+            data_timestamp=end.isoformat(),
+        )
+
+    def backfill_calendar(self, start: datetime, end: datetime) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        if self.calendar_provider is not None:
+            return self.calendar_provider.backfill(start, end)
+        if self.csv_calendar_dir is not None and self.csv_calendar_dir.exists():
+            return self._load_calendar_csv_fallback(end, data_mode="backfilled")
+        return [], build_provider_health(
+            source="Calendar",
+            source_type="provider_interface",
+            data_mode="unavailable",
+            is_available=False,
+            stale_reason="App-managed calendar has no backfill data for this window.",
+            data_timestamp=end.isoformat(),
+        )
+
+    def _load_market_csv_fallback(
+        self, path: Path, anchor_time: datetime, *, data_mode: str
+    ) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        try:
+            from .market_prices import load_recent_market_snapshot
+
+            fixture = load_recent_market_snapshot(path, anchor_time)
+            rows = [
+                {
+                    "symbol": fixture.market.symbol,
+                    "data_timestamp": anchor_time.isoformat(),
+                    "open_price": fixture.market.from_price,
+                    "high_price": max(fixture.market.from_price, fixture.market.to_price),
+                    "low_price": min(fixture.market.from_price, fixture.market.to_price),
+                    "close_price": fixture.market.to_price,
+                    "bid_price": None,
+                    "ask_price": None,
+                    "move_percent": fixture.market.move_percent,
+                    "source": str(path),
+                    "source_type": "local_csv_fallback",
+                    "data_mode": data_mode,
+                    "is_stale": data_mode != "live_seen",
+                    "stale_reason": "CSV fallback is debug/import only." if data_mode != "live_seen" else "",
+                }
+            ]
+            return rows, build_provider_health(
+                source="XAUUSD",
+                source_type="local_csv_fallback",
+                data_mode=data_mode,
+                is_available=True,
+                is_stale=data_mode != "live_seen",
+                stale_reason="CSV fallback is debug/import only." if data_mode != "live_seen" else "",
+                current_value=fixture.market.to_price,
+                previous_value=fixture.market.from_price,
+                change_value=fixture.market.move_percent,
+                change_unit="percent",
+                data_timestamp=anchor_time.isoformat(),
+            )
+        except Exception as exc:
+            return [], build_provider_health(
+                source="XAUUSD",
+                source_type="local_csv_fallback",
+                data_mode="unavailable",
+                is_available=False,
+                stale_reason="CSV fallback failed.",
+                error=str(exc),
+                data_timestamp=anchor_time.isoformat(),
+            )
+
+    def _load_related_assets_csv_fallback(
+        self, anchor_time: datetime, *, data_mode: str = "live_seen"
+    ) -> tuple[list[dict[str, Any]], dict[str, ProviderHealth]]:
+        from .related_assets import load_related_assets_snapshot, load_related_assets_timeseries_snapshot
+
+        if self.csv_related_assets_dir is not None and self.csv_related_assets_dir.exists():
+            snapshot = load_related_assets_timeseries_snapshot(self.csv_related_assets_dir, anchor_time, 15)
+        else:
+            snapshot = load_related_assets_snapshot(self.csv_related_assets_path)
+        source_type = "local_csv_fallback"
+        data = {
+            "dxy": (snapshot.dxy_percent, "percent"),
+            "us10y": (snapshot.us10y_bps, "bps"),
+            "us2y": (snapshot.us2y_bps, "bps"),
+            "wti": (snapshot.wti_percent, "percent"),
+            "brent": (snapshot.brent_percent, "percent"),
+            "vix": (snapshot.vix_percent, "percent"),
+            "spx": (snapshot.spx_percent, "percent"),
+            "nasdaq": (snapshot.nasdaq_percent, "percent"),
+        }
+        rows = [
+            {
+                "symbol": symbol,
+                "data_timestamp": anchor_time.isoformat(),
+                "value": None,
+                "change_15m": value,
+                "change_30m": value,
+                "change_60m": value,
+                "change_value": value,
+                "change_unit": unit,
+                "source": str(self.csv_related_assets_dir or self.csv_related_assets_path),
+                "source_type": source_type,
+                "data_mode": data_mode,
+                "is_stale": data_mode != "live_seen",
+                "stale_reason": "CSV fallback is debug/import only." if data_mode != "live_seen" else "",
+            }
+            for symbol, (value, unit) in data.items()
+        ]
+        health = {
+            symbol: build_provider_health(
+                source=symbol.upper(),
+                source_type=source_type,
+                data_mode=data_mode,
+                is_available=True,
+                is_stale=data_mode != "live_seen",
+                stale_reason="CSV fallback is debug/import only." if data_mode != "live_seen" else "",
+                current_value=value,
+                change_value=value,
+                change_unit=unit,
+                data_timestamp=anchor_time.isoformat(),
+            )
+            for symbol, (value, unit) in data.items()
+        }
+        return rows, health
+
+    def _has_related_asset_csv_source(self, symbol: str) -> bool:
+        if self.csv_related_assets_dir is not None and self.csv_related_assets_dir.exists():
+            return (self.csv_related_assets_dir / f"{symbol}.csv").exists()
+        return self.csv_related_assets_path is not None and self.csv_related_assets_path.exists()
+
+    def _load_related_asset_csv_fallback_symbols(
+        self,
+        anchor_time: datetime,
+        *,
+        data_mode: str,
+        symbols: tuple[str, ...],
+    ) -> tuple[list[dict[str, Any]], dict[str, ProviderHealth]]:
+        if not self.csv_fallback_enabled:
+            return [], {}
+        available_symbols = tuple(symbol for symbol in symbols if self._has_related_asset_csv_source(symbol))
+        if not available_symbols:
+            return [], {}
+        rows, health = self._load_related_assets_csv_fallback(anchor_time, data_mode=data_mode)
+        wanted = set(available_symbols)
+        return [row for row in rows if row.get("symbol") in wanted], {
+            key: value for key, value in health.items() if key in wanted
+        }
+
+    def _fetch_us2y_context(
+        self,
+        anchor_time: datetime,
+        *,
+        data_mode_override: str | None = None,
+    ) -> tuple[list[dict[str, Any]], dict[str, ProviderHealth]]:
+        if self.trading_economics_us2y_enabled and self.trading_economics_us2y_cache_path is not None:
+            rows, health = TradingEconomicsUS2YProvider(
+                cache_path=self.trading_economics_us2y_cache_path,
+            ).fetch_latest(anchor_time)
+            if rows and health.is_available:
+                if data_mode_override:
+                    rows = [{**row, "data_mode": data_mode_override} for row in rows]
+                    health = replace(health, data_mode=data_mode_override)
+                return rows, {"us2y": health}
+        return self._load_related_asset_csv_fallback_symbols(
+            anchor_time,
+            data_mode=data_mode_override or "stale",
+            symbols=("us2y",),
+        )
+
+    def _fetch_trading_economics_quote(
+        self,
+        symbol: str,
+        anchor_time: datetime,
+    ) -> tuple[list[dict[str, Any]], ProviderHealth | None]:
+        if (
+            not self.trading_economics_us2y_enabled
+            or self.trading_economics_quotes_cache_dir is None
+            or symbol not in {"us10y", "vix", "spx", "nasdaq"}
+        ):
+            return [], None
+        rows, health = TradingEconomicsQuoteProvider(
+            symbol=symbol,
+            cache_path=self.trading_economics_quotes_cache_dir / f"{symbol}.json",
+        ).fetch_latest(anchor_time)
+        if rows and health.is_available:
+            return rows, health
+        return [], None
+
+    def _normalize_market_rows(
+        self, rows: list[dict[str, Any]], *, data_mode_override: str | None = None
+    ) -> list[dict[str, Any]]:
+        normalized: list[dict[str, Any]] = []
+        for row in rows:
+            normalized.append(
+                {
+                    "symbol": row.get("symbol", "XAUUSD"),
+                    "data_timestamp": row.get("data_timestamp", row.get("timestamp")),
+                    "open_price": row.get("open_price", row.get("open")),
+                    "high_price": row.get("high_price", row.get("high")),
+                    "low_price": row.get("low_price", row.get("low")),
+                    "close_price": row.get("close_price", row.get("close")),
+                    "bid_price": row.get("bid_price", row.get("bid")),
+                    "ask_price": row.get("ask_price", row.get("ask")),
+                    "move_percent": row.get("move_percent"),
+                    "source": row.get("source"),
+                    "source_type": row.get("source_type", "provider_interface"),
+                    "data_mode": data_mode_override or row.get("data_mode", "live_seen"),
+                    "is_stale": row.get("is_stale", False),
+                    "stale_reason": row.get("stale_reason", ""),
+                }
+            )
+        return normalized
+
+    def _load_calendar_csv_fallback(
+        self, anchor_time: datetime, *, data_mode: str
+    ) -> tuple[list[dict[str, Any]], ProviderHealth]:
+        from .calendar_events import load_calendar_events_in_window
+
+        items = load_calendar_events_in_window(
+            calendar_dir=self.csv_calendar_dir,
+            anchor_time=anchor_time,
+            lookback_minutes=self.calendar_lookback_minutes,
+            forward_minutes=self.calendar_forward_minutes,
+        )
+        rows = [
+            {
+                "scheduled_at": datetime.strptime(item.timestamp_myt, "%d-%m-%Y %H:%M")
+                .replace(tzinfo=anchor_time.tzinfo)
+                .isoformat(),
+                "source": item.source,
+                "title": item.title,
+                "relevance_reason": item.relevance_reason,
+                "impact_direction_on_gold": item.impact_direction_on_gold,
+                "data_mode": data_mode,
+            }
+            for item in items
+        ]
+        coverage = self._calendar_dataset_coverage(anchor_time.year)
+        if (
+            not rows
+            and coverage
+            and coverage.get("row_count", 0) > 0
+            and coverage.get("end")
+            and coverage["end"] < anchor_time.date().isoformat()
+        ):
+            return rows, build_provider_health(
+                source="Calendar",
+                source_type="local_csv_fallback",
+                data_mode="dataset_gap",
+                is_available=False,
+                is_stale=True,
+                stale_reason=(
+                    f"Economic Calendar dataset ends at {datetime.fromisoformat(coverage['end']).strftime('%d-%m-%Y')}; "
+                    f"current run is {anchor_time.strftime('%d-%m-%Y')}."
+                ),
+                current_value=0.0,
+                data_timestamp=anchor_time.isoformat(),
+                metadata={
+                    "dataset_start": coverage["start"],
+                    "dataset_end": coverage["end"],
+                    "row_count": coverage["row_count"],
+                    "calendar_dir": str(self.csv_calendar_dir),
+                },
+            )
+        dataset_covers_anchor = bool(
+            coverage
+            and coverage.get("row_count", 0) > 0
+            and coverage.get("start")
+            and coverage.get("end")
+            and coverage["start"] <= anchor_time.date().isoformat() <= coverage["end"]
+        )
+        calendar_available = bool(rows) or dataset_covers_anchor
+        metadata = {
+            **(coverage or {}),
+            "dataset_start": (coverage or {}).get("start", ""),
+            "dataset_end": (coverage or {}).get("end", ""),
+            "calendar_dir": str(self.csv_calendar_dir) if self.csv_calendar_dir else "",
+        }
+        return rows, build_provider_health(
+            source="Calendar",
+            source_type="local_csv_fallback",
+            data_mode=data_mode if calendar_available else "unavailable",
+            is_available=calendar_available,
+            is_stale=data_mode != "live_seen" and bool(rows),
+            stale_reason="CSV fallback is debug/import only." if data_mode != "live_seen" and rows else "",
+            current_value=float(len(rows)),
+            data_timestamp=rows[-1]["scheduled_at"] if rows else anchor_time.isoformat(),
+            metadata=metadata,
+        )
+
+    def _calendar_dataset_coverage(self, year: int) -> dict[str, Any] | None:
+        if self.csv_calendar_dir is None:
+            return None
+        year_path = self.csv_calendar_dir / str(year) / f"{year}_calendar.json"
+        if not year_path.exists():
+            return None
+        try:
+            payload = json.loads(year_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+        dates = sorted({str(row.get("Date", "")).strip() for row in payload if str(row.get("Date", "")).strip()})
+        if not dates:
+            return {"start": "", "end": "", "row_count": 0}
+        return {"start": dates[0], "end": dates[-1], "row_count": len(payload)}
+
+    def _normalize_related_rows(
+        self,
+        key: str,
+        rows: list[dict[str, Any]],
+        health: ProviderHealth,
+        *,
+        data_mode_override: str | None = None,
+    ) -> list[dict[str, Any]]:
+        normalized: list[dict[str, Any]] = []
+        for idx, row in enumerate(rows):
+            normalized.append(
+                {
+                    "symbol": key,
+                    "data_timestamp": row.get("data_timestamp", row.get("timestamp")),
+                    "value": row.get("close"),
+                    "change_15m": health.change_value if idx == len(rows) - 1 else None,
+                    "change_30m": row.get("change_30m"),
+                    "change_60m": row.get("change_60m"),
+                    "change_value": health.change_value if idx == len(rows) - 1 else None,
+                    "change_unit": health.change_unit or "percent",
+                    "source": row.get("source"),
+                    "source_type": health.source_type,
+                    "data_mode": data_mode_override or health.data_mode,
+                    "is_stale": health.is_stale if idx == len(rows) - 1 else False,
+                    "stale_reason": health.stale_reason if idx == len(rows) - 1 else "",
+                }
+            )
+        return normalized

@@ -1,0 +1,60 @@
+{
+  "scenario_id": "llm_hallucination_guard",
+  "as_of_myt": "18-05-2026 20:05",
+  "market": {
+    "symbol": "XAUUSD",
+    "from_price": 4548.0,
+    "to_price": 4530.0,
+    "move_percent": -0.4,
+    "move_percent_15m": -0.4,
+    "move_percent_1h": -0.51,
+    "window_minutes": 15,
+    "breaks": ["session_low"]
+  },
+  "cross_asset": {
+    "dxy_percent": 0.02,
+    "us10y_bps": 0.7,
+    "us2y_bps": 0.4,
+    "wti_percent": 0.2,
+    "brent_percent": 0.2,
+    "vix_percent": 0.0,
+    "spx_percent": 0.0,
+    "nasdaq_percent": 0.1
+  },
+  "calendar_events": [],
+  "news": [],
+  "expected_llm_claim": {
+    "bias": "bearish_gold",
+    "main_driver": "fed_rates",
+    "secondary_driver": null,
+    "cause_status": "possible",
+    "confidence": "medium",
+    "is_new_state": true,
+    "is_continuation": false,
+    "previous_state_invalidated": false,
+    "should_notify": true,
+    "notification_level": "level_2",
+    "no_news_found": true,
+    "allowed_candidate_drivers_used": ["fed_rates"],
+    "rejected_or_blocked_drivers_acknowledged": false,
+    "timeline": [],
+    "cross_asset_confirmation": {
+      "dxy": "neutral",
+      "us10y": "neutral",
+      "us2y": "neutral",
+      "oil": "neutral",
+      "vix_equities": "neutral"
+    },
+    "evidence_status": {
+      "dxy": "not_confirming",
+      "us10y": "not_confirming",
+      "us2y": "not_confirming",
+      "oil": "not_confirming",
+      "vix_equities": "not_confirming",
+      "news": "no_relevant_news_found"
+    },
+    "causal_chain": "Fed pressure likely drove gold lower.",
+    "invalidation_conditions": [],
+    "user_message": "Fed pressure hit gold."
+  }
+}

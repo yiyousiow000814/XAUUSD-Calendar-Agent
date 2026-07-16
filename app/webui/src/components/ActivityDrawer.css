@@ -3,7 +3,7 @@
   inset: 0;
   opacity: 1;
   isolation: isolate;
-  z-index: 140;
+  z-index: 195;
 }
 
 .activity-backdrop::before {
@@ -37,7 +37,7 @@
 .activity-drawer {
   position: absolute;
   right: var(--app-pad, 24px);
-  bottom: var(--app-pad, 24px);
+  bottom: var(--activity-drawer-bottom, 12px);
   z-index: 1;
   width: min(420px, 92vw);
   height: min(64vh, 520px);

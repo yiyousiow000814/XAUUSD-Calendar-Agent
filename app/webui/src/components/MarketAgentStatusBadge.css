@@ -1,0 +1,75 @@
+.market-agent-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 24px;
+  max-width: 100%;
+  padding: 3px 9px 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 10px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.market-agent-status-badge.tone-good {
+  color: #9de9bd;
+  background: rgba(22, 95, 56, 0.26);
+  border-color: rgba(105, 210, 154, 0.28);
+}
+
+.market-agent-status-badge.tone-warn {
+  color: #ffd58b;
+  background: rgba(109, 74, 22, 0.28);
+  border-color: rgba(255, 194, 82, 0.24);
+}
+
+.market-agent-status-badge.tone-bad {
+  color: #ffb4b4;
+  background: rgba(109, 32, 42, 0.28);
+  border-color: rgba(255, 129, 129, 0.24);
+}
+
+.market-agent-status-badge.tone-info {
+  color: #a8d4ff;
+  background: rgba(30, 75, 143, 0.22);
+  border-color: rgba(134, 201, 255, 0.28);
+}
+
+[data-theme="light"] .market-agent-status-badge {
+  background: rgba(18, 20, 26, 0.05);
+  border-color: rgba(18, 20, 26, 0.1);
+}
+
+[data-theme="light"] .market-agent-status-badge.tone-good {
+  color: #116a3a;
+  background: rgba(216, 247, 229, 0.9);
+  border-color: rgba(48, 153, 91, 0.28);
+}
+
+[data-theme="light"] .market-agent-status-badge.tone-warn {
+  color: #8a5609;
+  background: rgba(255, 243, 216, 0.92);
+  border-color: rgba(194, 132, 24, 0.3);
+}
+
+[data-theme="light"] .market-agent-status-badge.tone-bad {
+  color: #9b2424;
+  background: rgba(255, 232, 232, 0.94);
+  border-color: rgba(197, 67, 67, 0.28);
+}
+
+[data-theme="light"] .market-agent-status-badge.tone-info {
+  color: #155684;
+  background: rgba(230, 244, 255, 0.95);
+  border-color: rgba(41, 111, 173, 0.3);
+}

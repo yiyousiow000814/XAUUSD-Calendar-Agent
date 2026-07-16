@@ -1,0 +1,53 @@
+name: Python Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feat/**
+      - fix/**
+      - chore/**
+      - docs/**
+
+jobs:
+  pytest:
+    name: Pytest (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-ci.txt
+
+      - name: Run market agent pytest suite
+        shell: pwsh
+        run: |
+          python -m pytest `
+            tests/test_market_move_detector.py `
+            tests/test_cross_asset_detector.py `
+            tests/test_evidence_gate.py `
+            tests/test_state_transition.py `
+            tests/test_llm_json_contract.py `
+            tests/test_blocked_driver_validation.py `
+            tests/test_dry_run_cli.py `
+            tests/test_llm_integration.py `
+            tests/test_llm_repair.py `
+            tests/test_driver_attention.py `
+            tests/test_provider_health.py `
+            tests/test_timeline_store.py `
+            tests/test_yahoo_chart_provider.py `
+            tests/test_rss_provider.py `
+            tests/test_forex_factory_provider.py `
+            tests/test_ctrader_provider.py `
+            tests/test_provider_router.py `
+            tests/test_backfill.py `
+            tests/test_replay_queries.py `
+            -v

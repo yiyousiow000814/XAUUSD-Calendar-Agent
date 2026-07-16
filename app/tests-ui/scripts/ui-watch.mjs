@@ -9,11 +9,22 @@ const repoRoot = path.resolve(__dirname, "..", "..", "..");
 let running = false;
 let queued = false;
 
+const checkArgs = () => {
+  const mode = (process.env.UI_WATCH_MODE || "fast").trim().toLowerCase();
+  if (mode === "full") return ["scripts/ui-check.mjs"];
+  if (mode === "market-agent") {
+    return ["scripts/ui-check.mjs", "--theme", "dark", "--filter", "Market Agent"];
+  }
+  return ["scripts/ui-check.mjs", "--theme", "dark", "--filter", "Market Agent dashboard smoke"];
+};
+
 const runCheck = () =>
   new Promise((resolve, reject) => {
-    const child = spawn("node", ["scripts/ui-check.mjs"], {
+    const args = checkArgs();
+    console.log(`ui-watch running: node ${args.join(" ")}`);
+    const child = spawn("node", args, {
       cwd: path.join(repoRoot, "app", "tests-ui"),
-      shell: true,
+      shell: false,
       stdio: "inherit"
     });
     child.on("exit", (code) => {
@@ -56,4 +67,4 @@ const watcher = chokidar.watch(watchPaths, {
 
 watcher.on("all", () => schedule());
 
-console.log("ui-watch running. Waiting for changes...");
+console.log("ui-watch running. Waiting for changes... Set UI_WATCH_MODE=full for full regression.");

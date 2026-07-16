@@ -1,0 +1,27 @@
+{
+  "scenario_id": "unconfirmed_move",
+  "as_of_myt": "18-05-2026 18:12",
+  "market": {
+    "symbol": "XAUUSD",
+    "from_price": 4554.0,
+    "to_price": 4537.0,
+    "move_percent": -0.37,
+    "move_percent_15m": -0.37,
+    "move_percent_1h": -0.33,
+    "window_minutes": 15,
+    "breaks": []
+  },
+  "cross_asset": {
+    "dxy_percent": 0.01,
+    "us10y_bps": 0.8,
+    "us2y_bps": 0.5,
+    "wti_percent": 0.3,
+    "brent_percent": 0.2,
+    "vix_percent": 0.0,
+    "spx_percent": 0.1,
+    "nasdaq_percent": 0.0
+  },
+  "calendar_events": [],
+  "news": [],
+  "expected_llm_claim": null
+}

@@ -1,0 +1,44 @@
+{
+  "scenario_id": "oil_inflation_pressure",
+  "as_of_myt": "18-05-2026 16:10",
+  "market": {
+    "symbol": "XAUUSD",
+    "from_price": 4558.0,
+    "to_price": 4536.0,
+    "move_percent": -0.48,
+    "move_percent_15m": -0.38,
+    "move_percent_1h": -0.74,
+    "window_minutes": 60,
+    "breaks": ["london_open", "session_low"]
+  },
+  "cross_asset": {
+    "dxy_percent": 0.05,
+    "us10y_bps": 4.9,
+    "us2y_bps": 4.1,
+    "wti_percent": 1.9,
+    "brent_percent": 1.7,
+    "vix_percent": 0.2,
+    "spx_percent": -0.1,
+    "nasdaq_percent": -0.1
+  },
+  "calendar_events": [
+    {
+      "timestamp_myt": "18-05-2026 15:20",
+      "source": "Economic Calendar",
+      "title": "EIA inventory draw surprises market",
+      "relevance_reason": "Supports oil price jump and inflation concerns",
+      "impact_direction_on_gold": "bearish"
+    }
+  ],
+  "news": [
+    {
+      "timestamp_myt": "18-05-2026 15:18",
+      "source": "Bloomberg",
+      "title": "Crude extends gains after inventory surprise",
+      "relevance_reason": "Oil surge can feed inflation expectations and yields",
+      "impact_direction_on_gold": "bearish",
+      "tags": ["oil", "inflation"]
+    }
+  ],
+  "expected_llm_claim": null
+}

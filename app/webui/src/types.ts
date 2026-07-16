@@ -189,6 +189,513 @@ export type PredictReleaseModelResponse = {
   data?: PredictReleaseModel | Record<string, unknown>;
 };
 
+export type MarketAgentState = {
+  current_bias: string;
+  main_driver: string;
+  secondary_driver?: string | null;
+  risk_driver?: string | null;
+  confidence: string;
+  cause_status: string;
+  last_alert_time: string;
+  last_alert_summary: string;
+  last_analysis_time?: string;
+  last_notification_level?: string;
+  state_change_reason?: string;
+  invalidation_triggered?: boolean;
+  invalidation_triggered_by?: string[];
+  invalidation_conditions?: string[];
+};
+
+export type MarketAgentAlert = {
+  time: string;
+  notification_level: string;
+  message: string;
+  main_driver?: string;
+  bias?: string;
+  state_change_reason?: string;
+  confidence_delta?: string;
+  previous_state_invalidated?: boolean;
+  invalidation_triggered_by?: string[];
+};
+
+export type MarketAgentSnapshotResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  state_path?: string;
+  alerts_path?: string;
+  timeline_store_path?: string;
+  timeline_available?: boolean;
+  state: MarketAgentState | null;
+  alerts: MarketAgentAlert[];
+};
+
+export type MarketAgentProviderHealthEntry = {
+  provider_key?: string;
+  source: string;
+  source_type: string;
+  fetched_at?: string;
+  data_timestamp?: string;
+  data_mode: string;
+  is_available: boolean;
+  is_stale: boolean;
+  stale_reason?: string;
+  error?: string;
+  raw_source_id?: string;
+  latency_ms?: number | null;
+  current_value?: number | null;
+  previous_value?: number | null;
+  change_value?: number | null;
+  change_unit?: string;
+  metadata?: Record<string, unknown>;
+  effective_status?: string;
+  usable_as_context?: boolean;
+  monitor_run_id?: number;
+  run_started_at?: string;
+};
+
+export type MarketAgentDriverAttentionState = {
+  driver_id: string;
+  label?: string;
+  category?: string;
+  current_state: string;
+  priority: string;
+  relevance_score?: number;
+  impact_percent?: number | null;
+  activation_reason?: string;
+  deactivation_reason?: string;
+  first_activated_at?: string;
+  last_confirmed_at?: string;
+  last_evidence_at?: string;
+  decay_deadline?: string;
+  current_evidence_summary?: string;
+  current_counter_evidence?: string;
+  confidence: string;
+  source_count?: number;
+  related_news_count?: number;
+  related_calendar_events?: number;
+  evidence_refs?: Record<string, unknown>[];
+  notes?: string;
+  data_mode: string;
+  monitor_run_id?: number;
+  run_started_at?: string;
+};
+
+export type MarketAgentTimelineEvent = {
+  monitor_run_id: number;
+  event_time: string;
+  event_type: string;
+  label: string;
+  payload: Record<string, unknown>;
+};
+
+export type MarketAgentStateTransition = Record<string, unknown> & {
+  monitor_run_id?: number;
+  run_started_at?: string;
+};
+
+export type MarketAgentAlertTimelineItem = Record<string, unknown> & {
+  monitor_run_id?: number;
+  run_started_at?: string;
+  should_notify?: boolean;
+};
+
+export type MarketAgentReplayPayload = {
+  price_series: Record<string, unknown>[];
+  related_assets: Record<string, Record<string, unknown>[]>;
+  news_items: Record<string, unknown>[];
+  calendar_events: Record<string, unknown>[];
+  driver_attention_timeline: Record<string, unknown>[];
+  timeline_events: MarketAgentTimelineEvent[];
+  month_summary_events?: MarketAgentTimelineEvent[];
+  state_transitions: MarketAgentStateTransition[];
+  alerts: MarketAgentAlertTimelineItem[];
+  suppressed_alerts: MarketAgentAlertTimelineItem[];
+};
+
+export type MarketAgentReplayResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  mode?: "dashboard" | "full" | string;
+  replay: MarketAgentReplayPayload;
+};
+
+export type MarketAgentProviderHealthResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  monitor_run_id?: number | null;
+  run_started_at?: string | null;
+  items: MarketAgentProviderHealthEntry[];
+};
+
+export type MarketAgentProviderConfig = {
+  enabled: boolean;
+  environment: string;
+  symbol: string;
+  symbolId?: number | null;
+  accountId: string;
+  ctidMasked: string;
+  passwordMasked: string;
+  hasPassword: boolean;
+  snapshotPath: string;
+  quoteTimeoutSeconds: number;
+  quoteStaleAfterSeconds: number;
+  allowSavedSnapshotFallback: boolean;
+  configPath: string;
+};
+
+export type MarketAgentProviderConfigResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  ctrader?: MarketAgentProviderConfig | null;
+};
+
+export type MarketAgentProviderConfigInput = {
+  enabled: boolean;
+  environment: string;
+  accountId: string;
+  ctid: string;
+  password: string;
+  symbol: string;
+  symbolId?: number | null;
+  snapshotPath?: string;
+  quoteTimeoutSeconds: number;
+  quoteStaleAfterSeconds: number;
+  allowSavedSnapshotFallback: boolean;
+};
+
+export type MarketAgentProviderActionResponse = {
+  ok: boolean;
+  message?: string;
+  error?: string;
+  provider_health?: Record<string, unknown> | null;
+  quote?: Record<string, unknown> | null;
+  symbol?: Record<string, unknown> | null;
+  account?: Record<string, unknown> | null;
+  ctrader?: MarketAgentProviderConfig | null;
+};
+
+export type MarketAgentLiveQuote = {
+  symbol: string;
+  bid?: number | null;
+  ask?: number | null;
+  mid?: number | null;
+  timestamp?: string | null;
+  source?: string;
+  source_type?: string;
+};
+
+export type MarketAgentLiveQuoteResponse = {
+  ok: boolean;
+  running: boolean;
+  phase?: string;
+  message?: string;
+  lastError?: string | null;
+  snapshotPath?: string;
+  quote?: MarketAgentLiveQuote | null;
+  provider_health?: Record<string, unknown> | null;
+  status?: Record<string, unknown> | null;
+};
+
+export type MarketAgentRuntimeInspectMismatch = {
+  code: string;
+  severity: string;
+  summary: string;
+  detail?: string;
+};
+
+export type MarketAgentRuntimeInspectResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  root?: string;
+  runtime_verdict?: string;
+  summary?: string;
+  live_quote?: MarketAgentLiveQuoteResponse | null;
+  monitor_status?: MarketAgentMonitorStatusResponse | null;
+  ctrader_activity?: Record<string, unknown> | null;
+  provider_health_items?: MarketAgentProviderHealthEntry[];
+  xauusd_provider_health?: Record<string, unknown> | null;
+  snapshot_timestamp?: string;
+  live_mid?: number | null;
+  mismatches?: MarketAgentRuntimeInspectMismatch[];
+};
+
+export type MarketAgentTelegramConfig = {
+  enabled: boolean;
+  botTokenMasked: string;
+  hasBotToken: boolean;
+  chatId: string;
+  timeoutSeconds: number;
+  levels: string[];
+  configPath: string;
+  lastSendStatus?: string;
+  lastError?: string;
+};
+
+export type MarketAgentTelegramConfigResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  telegram?: MarketAgentTelegramConfig | null;
+};
+
+export type MarketAgentTelegramConfigInput = {
+  enabled: boolean;
+  botToken: string;
+  chatId: string;
+  timeoutSeconds: number;
+  levels: string[];
+};
+
+export type MarketAgentTelegramActionResponse = {
+  ok: boolean;
+  status?: string;
+  message?: string;
+  error?: string;
+  telegram?: MarketAgentTelegramConfig | null;
+};
+
+export type MarketAgentLLMConfig = {
+  enabled: boolean;
+  provider: string;
+  endpoint: string;
+  model: string;
+  temperature: number;
+  timeoutSeconds: number;
+  keepAlive: string;
+  maxContext: number;
+  configPath: string;
+  lastStatus?: string;
+  lastError?: string;
+};
+
+export type MarketAgentLLMConfigResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  llm?: MarketAgentLLMConfig | null;
+};
+
+export type MarketAgentLLMConfigInput = {
+  enabled: boolean;
+  provider: string;
+  endpoint: string;
+  model: string;
+  temperature: number;
+  timeoutSeconds: number;
+  keepAlive: string;
+  maxContext: number;
+};
+
+export type MarketAgentLLMActionResponse = {
+  ok: boolean;
+  status?: string;
+  message?: string;
+  error?: string;
+  llm?: MarketAgentLLMConfig | null;
+  model?: string;
+  elapsedMs?: number;
+  policy?: Record<string, unknown>;
+};
+
+export type MarketAgentSystemProfile = {
+  os: string;
+  arch?: string;
+  cpu?: string;
+  logicalCpuCount?: number;
+  ramBytes?: number;
+  gpuVendor?: string;
+  gpuName?: string;
+  vramBytes?: number;
+  nvidiaAvailable?: boolean;
+};
+
+export type MarketAgentLocalModelProfile = {
+  name: string;
+  tier: string;
+  label: string;
+  approximateSizeBytes: number;
+  diskLabel: string;
+  reason: string;
+};
+
+export type MarketAgentOllamaStatus = {
+  installed: boolean;
+  running: boolean;
+  endpointReachable: boolean;
+  endpoint: string;
+  version?: string;
+  installerUrl?: string;
+};
+
+export type MarketAgentLLMSetupResponse = {
+  ok: boolean;
+  available: boolean;
+  status: string;
+  message?: string;
+  system?: MarketAgentSystemProfile;
+  ollama?: MarketAgentOllamaStatus;
+  installedModels?: Record<string, unknown>[];
+  recommendedModel?: MarketAgentLocalModelProfile | null;
+  profiles?: MarketAgentLocalModelProfile[];
+  fallbackChain?: string[];
+  ruleBasedActive?: boolean;
+  llm?: MarketAgentLLMConfig | null;
+};
+
+export type MarketAgentOllamaPullProgress = {
+  ok?: boolean;
+  model: string;
+  status: string;
+  digest?: string;
+  completedBytes?: number | null;
+  totalBytes?: number | null;
+  percent?: number | null;
+  done?: boolean;
+  message?: string;
+  error?: string;
+};
+
+export type MarketAgentActivityJob = {
+  title?: string;
+  status?: string;
+  detail?: string;
+  input?: string;
+  output?: string;
+  timestamp?: number | string | null;
+  meta?: Record<string, unknown>;
+};
+
+export type MarketAgentActivityStatus = {
+  status?: string;
+  label?: string;
+  detail?: string;
+  progress?: number;
+  newsCount?: number;
+  calendarCount?: number;
+  dataTimestamp?: number | string | null;
+  fetchedAt?: number | string | null;
+  updatedAt?: number | string | null;
+  providerHealth?: Record<string, unknown>;
+  jobs?: MarketAgentActivityJob[];
+  [key: string]: unknown;
+};
+
+export type MarketAgentCTraderAuthResponse = {
+  ok: boolean;
+  status: string;
+  message?: string;
+  error?: string;
+  provider_health?: Record<string, unknown> | null;
+  quote?: Record<string, unknown> | null;
+  live_stream?: Record<string, unknown> | null;
+  symbol?: Record<string, unknown> | null;
+  account?: Record<string, unknown> | null;
+  ctrader?: MarketAgentProviderConfig | null;
+};
+
+export type MarketAgentDriverAttentionResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  monitor_run_id?: number | null;
+  run_started_at?: string | null;
+  states: MarketAgentDriverAttentionState[];
+};
+
+export type MarketAgentTimelineResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  items: MarketAgentTimelineEvent[];
+};
+
+export type MarketAgentEvidenceForRunPayload = {
+  monitor_run?: Record<string, unknown> | null;
+  evidence_packet?: Record<string, unknown> | null;
+  analysis_result?: Record<string, unknown> | null;
+  analysis_history?: Record<string, unknown>[];
+  provider_health?: Record<string, unknown>[];
+  driver_attention_states?: Record<string, unknown>[];
+  alerts?: Record<string, unknown>[];
+  state_transition?: Record<string, unknown> | null;
+};
+
+export type MarketAgentEvidenceForRunResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  monitor_run_id?: number;
+  payload: MarketAgentEvidenceForRunPayload;
+};
+
+export type MarketAgentStateTransitionsResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  items: MarketAgentStateTransition[];
+};
+
+export type MarketAgentSuppressedAlertsResponse = {
+  ok: boolean;
+  available: boolean;
+  message?: string;
+  timeline_store_path?: string;
+  start?: string;
+  end?: string;
+  items: MarketAgentAlertTimelineItem[];
+};
+
+export type MarketAgentMonitorStatusResponse = {
+  ok: boolean;
+  available: boolean;
+  running: boolean;
+  phase: string;
+  autoStart?: boolean;
+  pid?: number | null;
+  intervalSeconds?: number;
+  lastRunAt?: number | string | null;
+  lastSuccessAt?: number | string | null;
+  nextRunAt?: number | string | null;
+  lastRecoveryAt?: number | string | null;
+  lastError?: string;
+  message?: string;
+  updatedAt?: number | string | null;
+  latestMonitorRunId?: number | null;
+  latestStoredRunAt?: number | string | null;
+  latestStoredDataMode?: string;
+  activityStale?: boolean;
+  activity?: Record<string, MarketAgentActivityStatus>;
+  selfAudit?: {
+    status?: string;
+    checked_at?: string;
+    summary?: string;
+    latest_evidence_run_id?: number | null;
+    latest_timeline_event_at?: string | null;
+    checks?: Array<{
+      name?: string;
+      status?: string;
+      detail?: string;
+    }>;
+  } | null;
+};
+
 export type Snapshot = {
   lastPull: string;
   lastSync: string;

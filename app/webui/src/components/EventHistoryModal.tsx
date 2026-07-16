@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+﻿import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { 
   EventHistoryPoint, 
@@ -15,9 +15,12 @@ import {
   getEffectiveCalendarUtcOffsetMinutes,
   parseDisplayTimeToUtcMs
 } from "../utils/calendarTime";
-import { DeepAnalysisView } from "./event-history/DeepAnalysisView";
 import { Select } from "./Select";
 import "./EventHistoryModal.css";
+
+const DeepAnalysisView = lazy(() =>
+  import("./event-history/DeepAnalysisView").then((module) => ({ default: module.DeepAnalysisView }))
+);
 
 type EventHistoryModalProps = {
   isOpen: boolean;
@@ -2485,23 +2488,25 @@ export function EventHistoryModal({
                     {impactOpen ? ( 
                       <div className="history-impact"> 
                         {impactPanel === "deep" ? (
-                          <DeepAnalysisView
-                            points={points}
-                            metricKey={String(data?.metric ?? "")}
-                            cur={String(data?.cur ?? "")}
-                            isUsdEvent={isUsdEvent}
-                            deepLoading={deepLoading}
-                            deepError={deepError}
-                            deepData={activeDeepData}
-                            impactLoading={impactLoading}
-                            impactSeriesItems={impactSeries.items}
-                            anchorDtUtc={anchorDtUtc}
-                            displayOffsetMinutes={effectiveCalendarOffsetMinutes}
-                            selectionImpact={selectionImpact}
-                            selectionActual={selectionActual}
-                            selectionForecast={selectionForecast}
-                            selectionPrevious={selectionPrevious}
-                          />
+                          <Suspense fallback={<div className="history-loading">Loading deep analysis...</div>}>
+                            <DeepAnalysisView
+                              points={points}
+                              metricKey={String(data?.metric ?? "")}
+                              cur={String(data?.cur ?? "")}
+                              isUsdEvent={isUsdEvent}
+                              deepLoading={deepLoading}
+                              deepError={deepError}
+                              deepData={activeDeepData}
+                              impactLoading={impactLoading}
+                              impactSeriesItems={impactSeries.items}
+                              anchorDtUtc={anchorDtUtc}
+                              displayOffsetMinutes={effectiveCalendarOffsetMinutes}
+                              selectionImpact={selectionImpact}
+                              selectionActual={selectionActual}
+                              selectionForecast={selectionForecast}
+                              selectionPrevious={selectionPrevious}
+                            />
+                          </Suspense>
                         ) : (
                           <div className="history-impact-chart" data-qa="qa:history:impact-chart"> 
                             <div className="impact-chart-header">

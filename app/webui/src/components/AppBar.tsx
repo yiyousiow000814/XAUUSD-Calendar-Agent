@@ -5,6 +5,7 @@ import { ActionButtons } from "./ActionButtons";
 type AppBarProps = {
   snapshot: Snapshot;
   outputDir: string;
+  activeView: "calendar" | "market-agent";
   syncTargetPulse: number;
   syncTargetNudgeFlash: boolean;
   syncDisabled: boolean;
@@ -18,11 +19,15 @@ type AppBarProps = {
   onOpenSettings: () => void;
   onToggleTheme: () => void;
   onOpenPaths: () => void;
+  onOpenCalendar: () => void;
+  onOpenMarketAgent: () => void;
+  onPreloadMarketAgent?: () => void;
 };
 
 export function AppBar({
   snapshot,
   outputDir,
+  activeView,
   syncTargetPulse,
   syncTargetNudgeFlash,
   syncDisabled,
@@ -35,7 +40,10 @@ export function AppBar({
   onSync,
   onOpenSettings,
   onToggleTheme,
-  onOpenPaths
+  onOpenPaths,
+  onOpenCalendar,
+  onOpenMarketAgent,
+  onPreloadMarketAgent
 }: AppBarProps) {
   const hasTarget = outputDir.trim().length > 0;
   const shouldFlash = !hasTarget && syncTargetNudgeFlash;
@@ -55,6 +63,26 @@ export function AppBar({
         <span className="appbar-title">XAUUSD Calendar Agent</span>
       </div>
       <div className="appbar-actions" data-qa="qa:toolbar:header">
+        <div className="appbar-btn-group" data-qa="qa:group:market-views">
+          <button
+            className={`btn${activeView === "calendar" ? " primary" : ""}`}
+            type="button"
+            onClick={onOpenCalendar}
+            data-qa="qa:action:view-calendar"
+          >
+            Calendar
+          </button>
+          <button
+            className={`btn${activeView === "market-agent" ? " primary" : ""}`}
+            type="button"
+            onClick={onOpenMarketAgent}
+            onFocus={onPreloadMarketAgent}
+            onPointerEnter={onPreloadMarketAgent}
+            data-qa="qa:action:view-market-agent"
+          >
+            Market Agent
+          </button>
+        </div>
         <div className="appbar-btn-group" data-qa="qa:group:actions">
           <ActionButtons
             variant="appbar"
